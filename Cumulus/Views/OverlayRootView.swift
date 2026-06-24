@@ -27,6 +27,7 @@ struct OverlayRootView: View {
                 if isInteractive {
                     OverlayInteractiveChromeVisual()
                     OverlayInteractiveChrome(controller: controller)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if controller.currentVideoID != nil {
                     VStack {
                         Text("Hold Shift — drag top bar to move, edges/corners to resize")
