@@ -1,0 +1,389 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		01642377D6B32D94E907B53E /* OverlayPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A15792B81C622E53CA2E8368 /* OverlayPanel.swift */; };
+		491D17BD5B23E5EE5BCDCA49 /* ControlPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E3E2E717F9495738E0C074 /* ControlPanelView.swift */; };
+		4F4A0C7775B489EF80E49ACB /* OverlaySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 118FF501694091327E434913 /* OverlaySettings.swift */; };
+		58C0495E59D6765F875E02BF /* LoopbackWebServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3AD6F4CE6C5BBDE5B8C942B /* LoopbackWebServer.swift */; };
+		5D426C5611FA3F8791649369 /* OverlayInteractiveChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23A60952924A1A0E7749B906 /* OverlayInteractiveChrome.swift */; };
+		71404BCE4BB367AE30AC506E /* InputPoller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520690D4E3C9CFDDAAE31C6B /* InputPoller.swift */; };
+		7BD4502C1E403793D178C5F5 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9045A1E00FD99DACFE9C80CB /* SettingsView.swift */; };
+		7F838C0BFA1DCAD2BBF644A4 /* YouTubeWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95F7542F5D426BCF99CD5281 /* YouTubeWebView.swift */; };
+		80E7320BF9DEBEF1DC7E4CB2 /* OverlayRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBAC091B4A3077F5C8187D35 /* OverlayRootView.swift */; };
+		B764F74A85B4A693C7CCCDF0 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 820A466AB2EA3934E7CF9204 /* StatusBarController.swift */; };
+		C742E128F94FC7BDC3393F60 /* OverlayController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DECB52F360A8C2B2AD4DF29D /* OverlayController.swift */; };
+		CDB96EA7A6E571985EF8B045 /* YouTubeURLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 604C0C8451D6B8DCF1E43014 /* YouTubeURLParser.swift */; };
+		D3CB407B47B74B88255337CC /* HotKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25958DAD29B4A2C7FAD3CABC /* HotKeyManager.swift */; };
+		ED3BF8EE69ACF403A631B7B0 /* DebugLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F143F3446458EB3592DCF27 /* DebugLog.swift */; };
+		EE0A4C07F7AE357B56DF04C4 /* CumulusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3320A3E4ED074D8703CCA17B /* CumulusApp.swift */; };
+		FD4E9ACDFBE7B390E2F5492B /* embed.html in Resources */ = {isa = PBXBuildFile; fileRef = 4E91F3CAC9C04DEF679BD218 /* embed.html */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		118FF501694091327E434913 /* OverlaySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlaySettings.swift; sourceTree = "<group>"; };
+		23A60952924A1A0E7749B906 /* OverlayInteractiveChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayInteractiveChrome.swift; sourceTree = "<group>"; };
+		25958DAD29B4A2C7FAD3CABC /* HotKeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotKeyManager.swift; sourceTree = "<group>"; };
+		3320A3E4ED074D8703CCA17B /* CumulusApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CumulusApp.swift; sourceTree = "<group>"; };
+		4E91F3CAC9C04DEF679BD218 /* embed.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = embed.html; sourceTree = "<group>"; };
+		520690D4E3C9CFDDAAE31C6B /* InputPoller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputPoller.swift; sourceTree = "<group>"; };
+		604C0C8451D6B8DCF1E43014 /* YouTubeURLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeURLParser.swift; sourceTree = "<group>"; };
+		733CCDBEA9393E4C9CF138F5 /* Cumulus.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Cumulus.entitlements; sourceTree = "<group>"; };
+		7536AB819A71D2DF9F9B79BA /* Cumulus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cumulus.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		820A466AB2EA3934E7CF9204 /* StatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
+		9045A1E00FD99DACFE9C80CB /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		95F7542F5D426BCF99CD5281 /* YouTubeWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeWebView.swift; sourceTree = "<group>"; };
+		9F143F3446458EB3592DCF27 /* DebugLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugLog.swift; sourceTree = "<group>"; };
+		A15792B81C622E53CA2E8368 /* OverlayPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayPanel.swift; sourceTree = "<group>"; };
+		A3AD6F4CE6C5BBDE5B8C942B /* LoopbackWebServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopbackWebServer.swift; sourceTree = "<group>"; };
+		DECB52F360A8C2B2AD4DF29D /* OverlayController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayController.swift; sourceTree = "<group>"; };
+		F3E3E2E717F9495738E0C074 /* ControlPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlPanelView.swift; sourceTree = "<group>"; };
+		FBAC091B4A3077F5C8187D35 /* OverlayRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayRootView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		0990FC1C14145936714A81D9 = {
+			isa = PBXGroup;
+			children = (
+				200BC346EC40E7E7DA3BC1E5 /* Cumulus */,
+				E52BE6E9AB6236FB06FE9D4E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		200BC346EC40E7E7DA3BC1E5 /* Cumulus */ = {
+			isa = PBXGroup;
+			children = (
+				733CCDBEA9393E4C9CF138F5 /* Cumulus.entitlements */,
+				3320A3E4ED074D8703CCA17B /* CumulusApp.swift */,
+				644A883C599E0CAF077808FF /* Models */,
+				7BD75F63A9377D35F169A781 /* Overlay */,
+				E639C12C89134E775E3EDC0E /* Resources */,
+				D9474364AA7F9608B6172ABF /* Views */,
+			);
+			path = Cumulus;
+			sourceTree = "<group>";
+		};
+		644A883C599E0CAF077808FF /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				9F143F3446458EB3592DCF27 /* DebugLog.swift */,
+				118FF501694091327E434913 /* OverlaySettings.swift */,
+				604C0C8451D6B8DCF1E43014 /* YouTubeURLParser.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		7BD75F63A9377D35F169A781 /* Overlay */ = {
+			isa = PBXGroup;
+			children = (
+				25958DAD29B4A2C7FAD3CABC /* HotKeyManager.swift */,
+				520690D4E3C9CFDDAAE31C6B /* InputPoller.swift */,
+				A3AD6F4CE6C5BBDE5B8C942B /* LoopbackWebServer.swift */,
+				DECB52F360A8C2B2AD4DF29D /* OverlayController.swift */,
+				A15792B81C622E53CA2E8368 /* OverlayPanel.swift */,
+				820A466AB2EA3934E7CF9204 /* StatusBarController.swift */,
+			);
+			path = Overlay;
+			sourceTree = "<group>";
+		};
+		D9474364AA7F9608B6172ABF /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F3E3E2E717F9495738E0C074 /* ControlPanelView.swift */,
+				23A60952924A1A0E7749B906 /* OverlayInteractiveChrome.swift */,
+				FBAC091B4A3077F5C8187D35 /* OverlayRootView.swift */,
+				9045A1E00FD99DACFE9C80CB /* SettingsView.swift */,
+				95F7542F5D426BCF99CD5281 /* YouTubeWebView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		E52BE6E9AB6236FB06FE9D4E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7536AB819A71D2DF9F9B79BA /* Cumulus.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E639C12C89134E775E3EDC0E /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				4E91F3CAC9C04DEF679BD218 /* embed.html */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F1917A133E416F66E461435C /* Cumulus */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0F2F71440047F65AB1BDF3EF /* Build configuration list for PBXNativeTarget "Cumulus" */;
+			buildPhases = (
+				9062145F97C6EA11FB17DF03 /* Sources */,
+				FA2C28BB781B6845DD6D4CB1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Cumulus;
+			packageProductDependencies = (
+			);
+			productName = Cumulus;
+			productReference = 7536AB819A71D2DF9F9B79BA /* Cumulus.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8C1AB156782BD97DDFCC3382 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = 4D19ED36E30651EA12C798A2 /* Build configuration list for PBXProject "Cumulus" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 0990FC1C14145936714A81D9;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = E52BE6E9AB6236FB06FE9D4E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F1917A133E416F66E461435C /* Cumulus */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		FA2C28BB781B6845DD6D4CB1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FD4E9ACDFBE7B390E2F5492B /* embed.html in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9062145F97C6EA11FB17DF03 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				491D17BD5B23E5EE5BCDCA49 /* ControlPanelView.swift in Sources */,
+				EE0A4C07F7AE357B56DF04C4 /* CumulusApp.swift in Sources */,
+				ED3BF8EE69ACF403A631B7B0 /* DebugLog.swift in Sources */,
+				D3CB407B47B74B88255337CC /* HotKeyManager.swift in Sources */,
+				71404BCE4BB367AE30AC506E /* InputPoller.swift in Sources */,
+				58C0495E59D6765F875E02BF /* LoopbackWebServer.swift in Sources */,
+				C742E128F94FC7BDC3393F60 /* OverlayController.swift in Sources */,
+				5D426C5611FA3F8791649369 /* OverlayInteractiveChrome.swift in Sources */,
+				01642377D6B32D94E907B53E /* OverlayPanel.swift in Sources */,
+				80E7320BF9DEBEF1DC7E4CB2 /* OverlayRootView.swift in Sources */,
+				4F4A0C7775B489EF80E49ACB /* OverlaySettings.swift in Sources */,
+				7BD4502C1E403793D178C5F5 /* SettingsView.swift in Sources */,
+				B764F74A85B4A693C7CCCDF0 /* StatusBarController.swift in Sources */,
+				CDB96EA7A6E571985EF8B045 /* YouTubeURLParser.swift in Sources */,
+				7F838C0BFA1DCAD2BBF644A4 /* YouTubeWebView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		488228B01481F2FB7D2040A0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Cumulus/Cumulus.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = Cumulus/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.cumulus.app;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		489B25AE0F0DAE47CD369D3D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Cumulus/Cumulus.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = Cumulus/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.cumulus.app;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		883CCA0476559A1057EB9762 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		A67DB771812141C652D7A045 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0F2F71440047F65AB1BDF3EF /* Build configuration list for PBXNativeTarget "Cumulus" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				489B25AE0F0DAE47CD369D3D /* Debug */,
+				488228B01481F2FB7D2040A0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4D19ED36E30651EA12C798A2 /* Build configuration list for PBXProject "Cumulus" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A67DB771812141C652D7A045 /* Debug */,
+				883CCA0476559A1057EB9762 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8C1AB156782BD97DDFCC3382 /* Project object */;
+}
