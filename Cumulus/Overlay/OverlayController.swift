@@ -23,6 +23,8 @@ final class OverlayController: ObservableObject {
     private var isDragging = false
     private var pendingExitMode: InteractionMode?
     private var exitModeStreak = 0
+    private var currentChromeInsets = ChromeInsets.zero
+    private var currentChromePlacement = ChromePlacement.default
 
     init(settings: OverlaySettings) {
         self.settings = settings
@@ -226,7 +228,9 @@ final class OverlayController: ObservableObject {
 
     func contentFrame(from windowFrame: NSRect) -> NSRect {
         if interactionMode == .interactive || isDragging {
-            return ScreenGeometry.normalizedFrame(OverlayChromeLayout.contentFrame(from: windowFrame))
+            return ScreenGeometry.normalizedFrame(
+                OverlayChromeLayout.contentFrame(from: windowFrame, insets: currentChromeInsets)
+            )
         }
         return ScreenGeometry.normalizedFrame(windowFrame)
     }
@@ -306,9 +310,25 @@ final class OverlayController: ObservableObject {
 
     private func windowFrame(forContent content: NSRect) -> NSRect {
         if interactionMode == .interactive || isDragging {
-            return OverlayChromeLayout.windowFrame(forContentRect: content)
+            let layout = chromeLayout(for: content)
+            currentChromePlacement = layout.placement
+            currentChromeInsets = layout.insets
+            return OverlayChromeLayout.windowFrame(forContentRect: content, insets: layout.insets)
         }
         return content
+    }
+
+    private func chromeLayout(for contentFrame: NSRect) -> (placement: ChromePlacement, insets: ChromeInsets) {
+        let candidates = snapEngine.snapFrames(
+            for: contentFrame.size,
+            in: visibleFrame(for: contentFrame),
+            margin: CGFloat(settings.snapEdgeMargin),
+            enabled: settings.enabledSnapAnchors
+        )
+        let anchor = snapEngine.closestAnchor(to: contentFrame, candidates: candidates)
+        let placement = ChromePlacement.forSnapAnchor(anchor)
+        let insets = OverlayChromeLayout.insets(for: placement)
+        return (placement, insets)
     }
 
     private func visibleFrame(for contentFrame: NSRect) -> NSRect {
@@ -318,10 +338,25 @@ final class OverlayController: ObservableObject {
     private func syncVideoLayout() {
         guard let contentView else { return }
         let interactive = interactionMode == .interactive || isDragging
-        let videoRect = interactive
-            ? OverlayChromeLayout.videoRect(in: contentView.bounds)
-            : contentView.bounds
-        contentView.syncLayout(interactive: interactive, videoRect: videoRect)
+
+        if interactive {
+            let videoRect = OverlayChromeLayout.videoRect(in: contentView.bounds, insets: currentChromeInsets)
+            contentView.syncLayout(
+                interactive: true,
+                videoRect: videoRect,
+                placement: currentChromePlacement,
+                insets: currentChromeInsets
+            )
+        } else {
+            currentChromeInsets = .zero
+            currentChromePlacement = .default
+            contentView.syncLayout(
+                interactive: false,
+                videoRect: contentView.bounds,
+                placement: .default,
+                insets: .zero
+            )
+        }
         playerController.layoutInContainer(contentView.videoContainer)
     }
 
@@ -393,13 +428,23 @@ final class OverlayController: ObservableObject {
 
         if mode == .interactive && previousMode != .interactive {
             let content = ScreenGeometry.normalizedFrame(
-                previousMode == .interactive ? OverlayChromeLayout.contentFrame(from: panel.frame) : panel.frame
+                previousMode == .interactive
+                    ? OverlayChromeLayout.contentFrame(from: panel.frame, insets: currentChromeInsets)
+                    : panel.frame
             )
-            panel.setFrame(OverlayChromeLayout.windowFrame(forContentRect: content), display: true)
+            let layout = chromeLayout(for: content)
+            currentChromePlacement = layout.placement
+            currentChromeInsets = layout.insets
+            panel.setFrame(
+                OverlayChromeLayout.windowFrame(forContentRect: content, insets: layout.insets),
+                display: true
+            )
         } else if mode != .interactive && previousMode == .interactive {
             let content = ScreenGeometry.normalizedFrame(
-                OverlayChromeLayout.contentFrame(from: panel.frame)
+                OverlayChromeLayout.contentFrame(from: panel.frame, insets: currentChromeInsets)
             )
+            currentChromeInsets = .zero
+            currentChromePlacement = .default
             panel.setFrame(content, display: true)
             settings.overlayFrame = OverlayFrame(from: content)
         }

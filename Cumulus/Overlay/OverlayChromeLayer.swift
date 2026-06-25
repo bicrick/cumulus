@@ -4,7 +4,14 @@ import AppKit
 final class OverlayChromeLayer: NSView {
     private weak var controller: OverlayController?
     private var videoRect = NSRect.zero
-    private var regions = ChromeInteractionRegions.make(videoRect: .zero)
+    private var placement = ChromePlacement.default
+    private var insets = ChromeInsets.zero
+    private var regions = ChromeInteractionRegions.make(
+        videoRect: .zero,
+        bounds: .zero,
+        placement: .default,
+        insets: .zero
+    )
 
     private var activeInteraction: ActiveInteraction = .none
     private var startMouse = NSPoint.zero
@@ -23,9 +30,16 @@ final class OverlayChromeLayer: NSView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func layoutChrome(videoRect: NSRect, in bounds: NSRect) {
+    func layoutChrome(videoRect: NSRect, in bounds: NSRect, placement: ChromePlacement, insets: ChromeInsets) {
         self.videoRect = videoRect
-        self.regions = ChromeInteractionRegions.make(videoRect: videoRect)
+        self.placement = placement
+        self.insets = insets
+        self.regions = ChromeInteractionRegions.make(
+            videoRect: videoRect,
+            bounds: bounds,
+            placement: placement,
+            insets: insets
+        )
         frame = bounds
         needsDisplay = true
         updateTrackingAreas()
@@ -40,9 +54,9 @@ final class OverlayChromeLayer: NSView {
     }
 
     private func drawGrabLine() {
-        let lineRect = OverlayChromeLayout.grabLineRect(for: videoRect)
+        let lineRect = OverlayChromeLayout.grabLineRect(for: videoRect, dragEdge: placement.dragEdge)
         NSColor.white.withAlphaComponent(0.92).setFill()
-        let radius = lineRect.height / 2
+        let radius = min(lineRect.width, lineRect.height) / 2
         NSBezierPath(roundedRect: lineRect, xRadius: radius, yRadius: radius).fill()
     }
 
@@ -52,17 +66,28 @@ final class OverlayChromeLayer: NSView {
 
         let lineWidth = OverlayChromeLayout.chromeStrokeWidth
         let outwardGap = OverlayChromeLayout.cornerArcOutwardGap
-
-        let cornerCenter = NSPoint(
-            x: videoRect.maxX - OverlayChromeLayout.videoCornerRadius,
-            y: videoRect.maxY - OverlayChromeLayout.videoCornerRadius
-        )
-        let arcRadius = OverlayChromeLayout.videoCornerRadius + outwardGap + lineWidth / 2
+        let r = OverlayChromeLayout.videoCornerRadius
+        let arcRadius = r + outwardGap + lineWidth / 2
 
         let path = NSBezierPath()
         path.lineWidth = lineWidth
         path.lineCapStyle = .round
-        path.appendArc(withCenter: cornerCenter, radius: arcRadius, startAngle: 0, endAngle: 90, clockwise: false)
+
+        switch placement.resizeCorner {
+        case .bottomRight:
+            let center = NSPoint(x: videoRect.maxX - r, y: videoRect.maxY - r)
+            path.appendArc(withCenter: center, radius: arcRadius, startAngle: 0, endAngle: 90, clockwise: false)
+        case .bottomLeft:
+            let center = NSPoint(x: videoRect.minX + r, y: videoRect.maxY - r)
+            path.appendArc(withCenter: center, radius: arcRadius, startAngle: 90, endAngle: 180, clockwise: false)
+        case .topLeft:
+            let center = NSPoint(x: videoRect.minX + r, y: videoRect.minY + r)
+            path.appendArc(withCenter: center, radius: arcRadius, startAngle: 180, endAngle: 270, clockwise: false)
+        case .topRight:
+            let center = NSPoint(x: videoRect.maxX - r, y: videoRect.minY + r)
+            path.appendArc(withCenter: center, radius: arcRadius, startAngle: 270, endAngle: 360, clockwise: false)
+        }
+
         path.stroke()
     }
 
@@ -70,7 +95,7 @@ final class OverlayChromeLayer: NSView {
 
     override func hitTest(_ point: NSPoint) -> NSView? {
         guard !isHidden, bounds.contains(point) else { return nil }
-        if regions.region(at: point) != nil {
+        if regions.region(at: point, videoRect: videoRect, bounds: bounds) != nil {
             return self
         }
         return nil
@@ -82,22 +107,51 @@ final class OverlayChromeLayer: NSView {
         super.updateTrackingAreas()
         trackingAreas.forEach { removeTrackingArea($0) }
 
-        for rect in [regions.dragRegion, regions.resizeRegion] {
-            let area = NSTrackingArea(
-                rect: rect,
-                options: [.activeAlways, .mouseEnteredAndExited, .mouseMoved, .cursorUpdate],
-                owner: self,
-                userInfo: nil
-            )
-            addTrackingArea(area)
-        }
+        let marginArea = NSTrackingArea(
+            rect: bounds,
+            options: [.activeAlways, .mouseMoved, .cursorUpdate, .inVisibleRect],
+            owner: self,
+            userInfo: nil
+        )
+        addTrackingArea(marginArea)
+
+        let resizeArea = NSTrackingArea(
+            rect: regions.resizeRegion,
+            options: [.activeAlways, .mouseEnteredAndExited, .mouseMoved, .cursorUpdate],
+            owner: self,
+            userInfo: nil
+        )
+        addTrackingArea(resizeArea)
     }
 
     override func resetCursorRects() {
         super.resetCursorRects()
         guard activeInteraction == .none else { return }
-        addCursorRect(regions.dragRegion, cursor: .openHand)
-        addCursorRect(regions.resizeRegion, cursor: .crosshair)
+
+        var dragRects = bounds
+        if dragRects.width > 0, dragRects.height > 0 {
+            // Exclude video and resize zone from open-hand rects by adding margin strips
+            addCursorRectForMargins(cursor: .openHand)
+        }
+        addCursorRect(regions.resizeRegion, cursor: ChromeResizeCursor.forCorner(placement.resizeCorner))
+    }
+
+    private func addCursorRectForMargins(cursor: NSCursor) {
+        let v = videoRect
+        let b = bounds
+
+        if v.minY > b.minY {
+            addCursorRect(NSRect(x: b.minX, y: b.minY, width: b.width, height: v.minY - b.minY), cursor: cursor)
+        }
+        if v.maxY < b.maxY {
+            addCursorRect(NSRect(x: b.minX, y: v.maxY, width: b.width, height: b.maxY - v.maxY), cursor: cursor)
+        }
+        if v.minX > b.minX {
+            addCursorRect(NSRect(x: b.minX, y: v.minY, width: v.minX - b.minX, height: v.height), cursor: cursor)
+        }
+        if v.maxX < b.maxX {
+            addCursorRect(NSRect(x: v.maxX, y: v.minY, width: b.maxX - v.maxX, height: v.height), cursor: cursor)
+        }
     }
 
     override func cursorUpdate(with event: NSEvent) {
@@ -111,17 +165,18 @@ final class OverlayChromeLayer: NSView {
     }
 
     private func applyCursor(for point: NSPoint) {
+        let resizeCursor = ChromeResizeCursor.forCorner(placement.resizeCorner)
         switch activeInteraction {
         case .dragging:
             NSCursor.closedHand.set()
         case .resizing:
-            NSCursor.crosshair.set()
+            resizeCursor.set()
         case .none:
-            switch regions.region(at: point) {
+            switch regions.region(at: point, videoRect: videoRect, bounds: bounds) {
             case .drag:
                 NSCursor.openHand.set()
             case .resize:
-                NSCursor.crosshair.set()
+                resizeCursor.set()
             case nil:
                 NSCursor.arrow.set()
             }
@@ -132,7 +187,7 @@ final class OverlayChromeLayer: NSView {
 
     override func mouseDown(with event: NSEvent) {
         let point = convert(event.locationInWindow, from: nil)
-        guard let region = regions.region(at: point),
+        guard let region = regions.region(at: point, videoRect: videoRect, bounds: bounds),
               let panelFrame = controller?.panelFrame else { return }
 
         startMouse = NSEvent.mouseLocation
@@ -146,7 +201,7 @@ final class OverlayChromeLayer: NSView {
         case .resize:
             activeInteraction = .resizing
             controller?.beginWindowManipulation()
-            NSCursor.crosshair.set()
+            ChromeResizeCursor.forCorner(placement.resizeCorner).set()
         }
     }
 
@@ -167,7 +222,7 @@ final class OverlayChromeLayer: NSView {
             let newContent = resizedContentFrame(from: startContentFrame, dx: dx, dy: dy)
             let clamped = controller.clampContentFrame(newContent)
             controller.applyContentFrameDirectly(clamped, persist: false)
-            NSCursor.crosshair.set()
+            ChromeResizeCursor.forCorner(placement.resizeCorner).set()
         case .none:
             break
         }
@@ -192,15 +247,41 @@ final class OverlayChromeLayer: NSView {
         applyCursor(for: point)
     }
 
-    /// Top-left anchor fixed; drag bottom-right to resize while preserving 16:9.
     private func resizedContentFrame(from start: NSRect, dx: CGFloat, dy: CGFloat) -> NSRect {
         let minW = ScreenGeometry.minVideoWidth
         let aspect = ScreenGeometry.videoAspectRatio
-        let fixedTopY = start.origin.y + start.height
-        let widthDelta = abs(dx) >= abs(dy) ? dx : -dy * aspect
-        let newW = max(minW, start.width + widthDelta)
-        let newH = newW / aspect
-        return NSRect(x: start.origin.x, y: fixedTopY - newH, width: newW, height: newH)
+
+        switch placement.resizeCorner {
+        case .bottomRight:
+            let fixedTopY = start.origin.y + start.height
+            let widthDelta = abs(dx) >= abs(dy) ? dx : -dy * aspect
+            let newW = max(minW, start.width + widthDelta)
+            let newH = newW / aspect
+            return NSRect(x: start.origin.x, y: fixedTopY - newH, width: newW, height: newH)
+
+        case .topLeft:
+            let fixedBottomY = start.origin.y
+            let widthDelta = abs(dx) >= abs(dy) ? -dx : dy * aspect
+            let newW = max(minW, start.width + widthDelta)
+            let newH = newW / aspect
+            return NSRect(x: start.maxX - newW, y: fixedBottomY, width: newW, height: newH)
+
+        case .bottomLeft:
+            let fixedTopY = start.origin.y + start.height
+            let fixedRightX = start.maxX
+            let widthDelta = abs(dx) >= abs(dy) ? -dx : -dy * aspect
+            let newW = max(minW, start.width + widthDelta)
+            let newH = newW / aspect
+            return NSRect(x: fixedRightX - newW, y: fixedTopY - newH, width: newW, height: newH)
+
+        case .topRight:
+            let fixedBottomY = start.origin.y
+            let fixedLeftX = start.origin.x
+            let widthDelta = abs(dx) >= abs(dy) ? dx : dy * aspect
+            let newW = max(minW, start.width + widthDelta)
+            let newH = newW / aspect
+            return NSRect(x: fixedLeftX, y: fixedBottomY, width: newW, height: newH)
+        }
     }
 }
 

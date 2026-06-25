@@ -67,8 +67,8 @@ final class OverlayContentView: NSView {
         chromeLayer.frame = bounds
     }
 
-    func syncLayout(interactive: Bool, videoRect: NSRect) {
+    func syncLayout(interactive: Bool, videoRect: NSRect, placement: ChromePlacement, insets: ChromeInsets) {
         videoContainer.frame = videoRect
-        chromeLayer.layoutChrome(videoRect: videoRect, in: bounds)
+        chromeLayer.layoutChrome(videoRect: videoRect, in: bounds, placement: placement, insets: insets)
     }
 }

@@ -88,4 +88,22 @@ struct SnapEngine {
         }
         return best?.0
     }
+
+    /// Returns the nearest snap anchor regardless of threshold (for chrome placement).
+    func closestAnchor(to contentFrame: NSRect, candidates: [SnapAnchor: NSRect]) -> SnapAnchor {
+        let center = NSPoint(x: contentFrame.midX, y: contentFrame.midY)
+        var best: (SnapAnchor, CGFloat)?
+
+        for (anchor, frame) in candidates {
+            let snapCenter = NSPoint(x: frame.midX, y: frame.midY)
+            let dx = center.x - snapCenter.x
+            let dy = center.y - snapCenter.y
+            let distance = hypot(dx, dy)
+            if best == nil || distance < best!.1 {
+                best = (anchor, distance)
+            }
+        }
+
+        return best?.0 ?? .center
+    }
 }
