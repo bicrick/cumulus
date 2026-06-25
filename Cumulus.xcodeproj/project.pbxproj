@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		01642377D6B32D94E907B53E /* OverlayPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A15792B81C622E53CA2E8368 /* OverlayPanel.swift */; };
 		491D17BD5B23E5EE5BCDCA49 /* ControlPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E3E2E717F9495738E0C074 /* ControlPanelView.swift */; };
+		4EC83CC324279E50DB44911D /* OverlayChromeLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81B6343CF524E197F6318B96 /* OverlayChromeLayout.swift */; };
 		4F4A0C7775B489EF80E49ACB /* OverlaySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 118FF501694091327E434913 /* OverlaySettings.swift */; };
 		58C0495E59D6765F875E02BF /* LoopbackWebServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3AD6F4CE6C5BBDE5B8C942B /* LoopbackWebServer.swift */; };
 		5D426C5611FA3F8791649369 /* OverlayInteractiveChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23A60952924A1A0E7749B906 /* OverlayInteractiveChrome.swift */; };
@@ -35,6 +36,7 @@
 		604C0C8451D6B8DCF1E43014 /* YouTubeURLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeURLParser.swift; sourceTree = "<group>"; };
 		733CCDBEA9393E4C9CF138F5 /* Cumulus.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Cumulus.entitlements; sourceTree = "<group>"; };
 		7536AB819A71D2DF9F9B79BA /* Cumulus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cumulus.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		81B6343CF524E197F6318B96 /* OverlayChromeLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayChromeLayout.swift; sourceTree = "<group>"; };
 		820A466AB2EA3934E7CF9204 /* StatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
 		9045A1E00FD99DACFE9C80CB /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		95F7542F5D426BCF99CD5281 /* YouTubeWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeWebView.swift; sourceTree = "<group>"; };
@@ -84,6 +86,7 @@
 				25958DAD29B4A2C7FAD3CABC /* HotKeyManager.swift */,
 				520690D4E3C9CFDDAAE31C6B /* InputPoller.swift */,
 				A3AD6F4CE6C5BBDE5B8C942B /* LoopbackWebServer.swift */,
+				81B6343CF524E197F6318B96 /* OverlayChromeLayout.swift */,
 				DECB52F360A8C2B2AD4DF29D /* OverlayController.swift */,
 				A15792B81C622E53CA2E8368 /* OverlayPanel.swift */,
 				820A466AB2EA3934E7CF9204 /* StatusBarController.swift */,
@@ -192,6 +195,7 @@
 				D3CB407B47B74B88255337CC /* HotKeyManager.swift in Sources */,
 				71404BCE4BB367AE30AC506E /* InputPoller.swift in Sources */,
 				58C0495E59D6765F875E02BF /* LoopbackWebServer.swift in Sources */,
+				4EC83CC324279E50DB44911D /* OverlayChromeLayout.swift in Sources */,
 				C742E128F94FC7BDC3393F60 /* OverlayController.swift in Sources */,
 				5D426C5611FA3F8791649369 /* OverlayInteractiveChrome.swift in Sources */,
 				01642377D6B32D94E907B53E /* OverlayPanel.swift in Sources */,

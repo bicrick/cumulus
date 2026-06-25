@@ -4,7 +4,7 @@ final class OverlayPanel: NSPanel {
     init(contentRect: NSRect) {
         super.init(
             contentRect: contentRect,
-            styleMask: [.borderless, .nonactivatingPanel, .resizable],
+            styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
         )
@@ -27,6 +27,25 @@ final class OverlayPanel: NSPanel {
 }
 
 enum ScreenGeometry {
+    static let videoAspectRatio: CGFloat = 16.0 / 9.0
+    static let minVideoWidth: CGFloat = 320
+    static var minVideoHeight: CGFloat { minVideoWidth / videoAspectRatio }
+
+    static func sizeMatchingAspect(width: CGFloat) -> NSSize {
+        let w = max(minVideoWidth, width)
+        return NSSize(width: w, height: w / videoAspectRatio)
+    }
+
+    static func frameMatchingAspect(origin: NSPoint, width: CGFloat) -> NSRect {
+        let size = sizeMatchingAspect(width: width)
+        return NSRect(origin: origin, size: size)
+    }
+
+    static func normalizedFrame(_ frame: NSRect) -> NSRect {
+        let size = sizeMatchingAspect(width: frame.width)
+        return NSRect(x: frame.origin.x, y: frame.origin.y, width: size.width, height: size.height)
+    }
+
     static func centeredFrame(size: NSSize) -> CGRect {
         guard let screen = NSScreen.main else {
             return CGRect(x: 200, y: 200, width: size.width, height: size.height)

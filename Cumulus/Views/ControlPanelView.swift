@@ -27,7 +27,7 @@ final class ControlPanelController {
         let content = ControlPanelView(appModel: appModel)
         let hostingView = NSHostingView(rootView: content)
 
-        let size = NSSize(width: 280, height: 340)
+        let size = NSSize(width: 280, height: 300)
         let origin = defaultOrigin(for: size)
 
         let panel = NSPanel(
@@ -114,16 +114,6 @@ struct ControlPanelView: View {
             Button("Close Overlay") {
                 appModel.controller.closeOverlay()
             }
-
-            Divider()
-
-            Text("Cmd+Shift+Y toggles overlay")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-
-            Text("Hold Shift on overlay for YouTube controls")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
         }
         .padding(12)
         .frame(minWidth: 260)

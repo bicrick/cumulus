@@ -79,10 +79,7 @@ final class OverlayController: ObservableObject {
         currentVideoID = videoID
         settings.lastVideoURL = urlString
 
-        let size = NSSize(
-            width: max(settings.overlayFrame.width, 480),
-            height: max(settings.overlayFrame.height, 270)
-        )
+        let size = ScreenGeometry.sizeMatchingAspect(width: max(settings.overlayFrame.width, ScreenGeometry.minVideoWidth))
         settings.overlayFrame = OverlayFrame(from: ScreenGeometry.centeredFrame(size: size))
 
         if panel == nil {
@@ -110,7 +107,7 @@ final class OverlayController: ObservableObject {
         guard !settings.lastVideoURL.isEmpty else { return }
         if let videoID = YouTubeURLParser.videoID(from: settings.lastVideoURL) {
             currentVideoID = videoID
-            let size = NSSize(width: 480, height: 270)
+            let size = ScreenGeometry.sizeMatchingAspect(width: 480)
             settings.overlayFrame = OverlayFrame(from: ScreenGeometry.centeredFrame(size: size))
             playerGeneration += 1
             createPanel()
@@ -121,7 +118,10 @@ final class OverlayController: ObservableObject {
 
     func persistFrame() {
         guard let panel else { return }
-        settings.overlayFrame = OverlayFrame(from: panel.frame)
+        let content = interactionMode == .interactive
+            ? OverlayChromeLayout.contentFrame(from: panel.frame)
+            : panel.frame
+        settings.overlayFrame = OverlayFrame(from: ScreenGeometry.normalizedFrame(content))
     }
 
     var panelFrame: NSRect? {
@@ -129,8 +129,16 @@ final class OverlayController: ObservableObject {
     }
 
     func applyFrameDirectly(_ frame: NSRect) {
-        panel?.setFrame(frame, display: true)
-        settings.overlayFrame = OverlayFrame(from: frame)
+        applyContentFrameDirectly(frame)
+    }
+
+    func applyContentFrameDirectly(_ contentFrame: NSRect) {
+        let normalized = ScreenGeometry.normalizedFrame(contentFrame)
+        let windowFrame = interactionMode == .interactive
+            ? OverlayChromeLayout.windowFrame(forContentRect: normalized)
+            : normalized
+        panel?.setFrame(windowFrame, display: true)
+        settings.overlayFrame = OverlayFrame(from: normalized)
     }
 
     func reloadVideo() {
@@ -144,10 +152,7 @@ final class OverlayController: ObservableObject {
     }
 
     func centerOverlay() {
-        let size = NSSize(
-            width: max(settings.overlayFrame.width, 480),
-            height: max(settings.overlayFrame.height, 270)
-        )
+        let size = ScreenGeometry.sizeMatchingAspect(width: max(settings.overlayFrame.width, ScreenGeometry.minVideoWidth))
         settings.overlayFrame = OverlayFrame(from: ScreenGeometry.centeredFrame(size: size))
         applyFrame(settings.overlayFrame)
         if isVisible {
@@ -190,7 +195,7 @@ final class OverlayController: ObservableObject {
     }
 
     private func applyFrame(_ overlayFrame: OverlayFrame) {
-        panel?.setFrame(overlayFrame.cgRect, display: true)
+        panel?.setFrame(ScreenGeometry.normalizedFrame(overlayFrame.cgRect), display: true)
     }
 
     func updateInteractionState() {
@@ -211,13 +216,26 @@ final class OverlayController: ObservableObject {
         }
 
         if newMode != interactionMode {
+            let previousMode = interactionMode
             interactionMode = newMode
-            applyMode(newMode)
+            applyMode(newMode, from: previousMode)
         }
     }
 
-    private func applyMode(_ mode: InteractionMode) {
+    private func applyMode(_ mode: InteractionMode, from previousMode: InteractionMode) {
         guard let panel else { return }
+
+        // Expand / contract window so chrome sits outside the video
+        if mode == .interactive && previousMode != .interactive {
+            let content = ScreenGeometry.normalizedFrame(panel.frame)
+            panel.setFrame(OverlayChromeLayout.windowFrame(forContentRect: content), display: true)
+        } else if mode != .interactive && previousMode == .interactive {
+            let content = ScreenGeometry.normalizedFrame(
+                OverlayChromeLayout.contentFrame(from: panel.frame)
+            )
+            panel.setFrame(content, display: true)
+            settings.overlayFrame = OverlayFrame(from: content)
+        }
 
         let targetOpacity = settings.opacity(for: mode)
         let duration = settings.transitionMs / 1000.0
@@ -241,7 +259,7 @@ final class OverlayController: ObservableObject {
 
     func handleSettingsChanged() {
         if isVisible {
-            applyMode(interactionMode)
+            applyMode(interactionMode, from: interactionMode)
         }
         if currentVideoID != nil {
             playerGeneration += 1

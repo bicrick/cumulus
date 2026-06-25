@@ -19,7 +19,6 @@ final class StatusBarController {
         button.image = nil
         button.title = "Cumulus"
         button.imagePosition = .noImage
-        button.toolTip = "Cumulus — YouTube Overlay"
     }
 
     func refreshMenu() {

@@ -1,164 +1,172 @@
 import AppKit
 import SwiftUI
 
-enum ChromeDragMode: Equatable {
-    case move
-    case resize(ResizeCorner)
-}
+// MARK: - Drag handle (top bar, outside video)
 
-/// AppKit chrome layer for 1:1 screen-space drag and resize while Shift is held.
-final class OverlayChromeNSView: NSView {
+final class ChromeDragBarNSView: NSView {
     weak var controller: OverlayController?
 
-    private var dragMode: ChromeDragMode?
-    private var startMouseLocation: NSPoint = .zero
-    private var startFrame: NSRect = .zero
-
-    override var isFlipped: Bool { true }
-
-    override func hitTest(_ point: NSPoint) -> NSView? {
-        guard controller?.interactionMode == .interactive else { return nil }
-        return region(for: point) != nil ? self : nil
-    }
-
     override func mouseDown(with event: NSEvent) {
-        guard let panelFrame = controller?.panelFrame,
-              let mode = region(for: convert(event.locationInWindow, from: nil)) else { return }
-
-        startMouseLocation = NSEvent.mouseLocation
-        startFrame = panelFrame
-        dragMode = mode
-    }
-
-    override func mouseDragged(with event: NSEvent) {
-        guard let controller, let dragMode else { return }
-
-        let currentMouse = NSEvent.mouseLocation
-        let dx = currentMouse.x - startMouseLocation.x
-        let dy = currentMouse.y - startMouseLocation.y
-
-        let frame: NSRect
-        switch dragMode {
-        case .move:
-            frame = NSRect(
-                x: startFrame.origin.x + dx,
-                y: startFrame.origin.y + dy,
-                width: startFrame.width,
-                height: startFrame.height
-            )
-        case .resize(let corner):
-            frame = resizedFrame(from: startFrame, corner: corner, dx: dx, dy: dy)
-        }
-
-        controller.applyFrameDirectly(frame)
-    }
-
-    override func mouseUp(with event: NSEvent) {
-        dragMode = nil
+        window?.performDrag(with: event)
         controller?.persistFrame()
     }
 
     override func resetCursorRects() {
-        guard controller?.interactionMode == .interactive else { return }
-
-        let bounds = self.bounds
-        let handle: CGFloat = 22
-        let edge: CGFloat = 10
-        let topBar: CGFloat = 28
-
-        addCursorRect(NSRect(x: handle, y: topBar, width: bounds.width - handle * 2, height: bounds.height - handle - topBar), cursor: .arrow)
-        addCursorRect(NSRect(x: 0, y: bounds.height - topBar, width: bounds.width, height: topBar), cursor: .openHand)
-
-        addCursorRect(NSRect(x: 0, y: bounds.height - handle, width: handle, height: handle), cursor: .crosshair)
-        addCursorRect(NSRect(x: bounds.width - handle, y: bounds.height - handle, width: handle, height: handle), cursor: .crosshair)
-        addCursorRect(NSRect(x: 0, y: 0, width: handle, height: handle), cursor: .crosshair)
-        addCursorRect(NSRect(x: bounds.width - handle, y: 0, width: handle, height: handle), cursor: .crosshair)
-
-        addCursorRect(NSRect(x: 0, y: handle, width: edge, height: bounds.height - handle * 2 - topBar), cursor: .resizeLeftRight)
-        addCursorRect(NSRect(x: bounds.width - edge, y: handle, width: edge, height: bounds.height - handle * 2 - topBar), cursor: .resizeLeftRight)
-        addCursorRect(NSRect(x: handle, y: 0, width: bounds.width - handle * 2, height: edge), cursor: .resizeUpDown)
-    }
-
-    private func region(for point: NSPoint) -> ChromeDragMode? {
-        let handle: CGFloat = 22
-        let edge: CGFloat = 10
-        let topBar: CGFloat = 28
-        let bounds = self.bounds
-
-        if point.y >= bounds.height - topBar { return .move }
-
-        if point.x <= handle && point.y >= bounds.height - handle { return .resize(.topLeft) }
-        if point.x >= bounds.width - handle && point.y >= bounds.height - handle { return .resize(.topRight) }
-        if point.x <= handle && point.y <= handle { return .resize(.bottomLeft) }
-        if point.x >= bounds.width - handle && point.y <= handle { return .resize(.bottomRight) }
-
-        if point.x <= edge { return .resize(.bottomLeft) }
-        if point.x >= bounds.width - edge { return .resize(.bottomRight) }
-        if point.y <= edge { return .resize(.bottomRight) }
-
-        return nil
-    }
-
-    private func resizedFrame(from start: NSRect, corner: ResizeCorner, dx: CGFloat, dy: CGFloat) -> NSRect {
-        let minSize = NSSize(width: 320, height: 180)
-        var frame = start
-
-        switch corner {
-        case .bottomRight:
-            frame.size.width = max(minSize.width, start.width + dx)
-            frame.size.height = max(minSize.height, start.height + dy)
-        case .bottomLeft:
-            let newWidth = max(minSize.width, start.width - dx)
-            frame.origin.x = start.origin.x + (start.width - newWidth)
-            frame.size.width = newWidth
-            frame.size.height = max(minSize.height, start.height + dy)
-        case .topRight:
-            frame.size.width = max(minSize.width, start.width + dx)
-            let newHeight = max(minSize.height, start.height + dy)
-            frame.origin.y = start.origin.y + (start.height - newHeight)
-            frame.size.height = newHeight
-        case .topLeft:
-            let newWidth = max(minSize.width, start.width - dx)
-            let newHeight = max(minSize.height, start.height + dy)
-            frame.origin.x = start.origin.x + (start.width - newWidth)
-            frame.origin.y = start.origin.y + (start.height - newHeight)
-            frame.size.width = newWidth
-            frame.size.height = newHeight
-        }
-
-        return frame
+        addCursorRect(bounds, cursor: .openHand)
     }
 }
 
-struct OverlayInteractiveChrome: NSViewRepresentable {
+struct ChromeDragBar: NSViewRepresentable {
     @ObservedObject var controller: OverlayController
 
-    func makeNSView(context: Context) -> OverlayChromeNSView {
-        let view = OverlayChromeNSView()
+    func makeNSView(context: Context) -> ChromeDragBarNSView {
+        let view = ChromeDragBarNSView()
         view.controller = controller
         return view
     }
 
-    func updateNSView(_ nsView: OverlayChromeNSView, context: Context) {
+    func updateNSView(_ nsView: ChromeDragBarNSView, context: Context) {
         nsView.controller = controller
-        nsView.isHidden = controller.interactionMode != .interactive
-        nsView.window?.invalidateCursorRects(for: nsView)
     }
 }
 
-struct OverlayInteractiveChromeVisual: View {
+// MARK: - Resize handle (bottom corners, outside video)
+
+final class ChromeResizeCornerNSView: NSView {
+    weak var controller: OverlayController?
+    var corner: ResizeCorner = .bottomRight
+
+    private var startMouse = NSPoint.zero
+    private var startContentFrame = NSRect.zero
+
+    override func mouseDown(with event: NSEvent) {
+        guard let panelFrame = controller?.panelFrame else { return }
+        startMouse = NSEvent.mouseLocation
+        startContentFrame = OverlayChromeLayout.contentFrame(from: panelFrame)
+    }
+
+    override func mouseDragged(with event: NSEvent) {
+        guard let controller else { return }
+
+        let dx = NSEvent.mouseLocation.x - startMouse.x
+        let dy = NSEvent.mouseLocation.y - startMouse.y
+        let newContent = resizedContentFrame(from: startContentFrame, corner: corner, dx: dx, dy: dy)
+        controller.applyContentFrameDirectly(newContent)
+    }
+
+    override func mouseUp(with event: NSEvent) {
+        controller?.persistFrame()
+    }
+
+    override func resetCursorRects() {
+        addCursorRect(bounds, cursor: .crosshair)
+    }
+
+    private func resizedContentFrame(from start: NSRect, corner: ResizeCorner, dx: CGFloat, dy: CGFloat) -> NSRect {
+        let minW = ScreenGeometry.minVideoWidth
+        let aspect = ScreenGeometry.videoAspectRatio
+
+        let widthDelta: CGFloat
+        switch corner {
+        case .bottomRight:
+            widthDelta = abs(dx) >= abs(dy) ? dx : dy * aspect
+            let newW = max(minW, start.width + widthDelta)
+            return NSRect(x: start.origin.x, y: start.origin.y, width: newW, height: newW / aspect)
+
+        case .bottomLeft:
+            widthDelta = abs(dx) >= abs(dy) ? -dx : dy * aspect
+            let newW = max(minW, start.width + widthDelta)
+            return NSRect(x: start.origin.x + start.width - newW, y: start.origin.y, width: newW, height: newW / aspect)
+
+        case .topRight, .topLeft:
+            return start
+        }
+    }
+}
+
+struct ChromeResizeCorner: NSViewRepresentable {
+    @ObservedObject var controller: OverlayController
+    let corner: ResizeCorner
+
+    func makeNSView(context: Context) -> ChromeResizeCornerNSView {
+        let view = ChromeResizeCornerNSView()
+        view.controller = controller
+        view.corner = corner
+        return view
+    }
+
+    func updateNSView(_ nsView: ChromeResizeCornerNSView, context: Context) {
+        nsView.controller = controller
+        nsView.corner = corner
+    }
+}
+
+// MARK: - Visual chrome (white grab lines, outside video)
+
+struct ExternalChromeVisual: View {
     var body: some View {
         VStack(spacing: 0) {
-            Rectangle()
-                .fill(Color.white.opacity(0.08))
-                .frame(height: 28)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 2)
-                        .fill(Color.white.opacity(0.35))
-                        .frame(width: 36, height: 4)
-                }
-            Spacer()
+            topBarVisual
+            HStack(spacing: 0) {
+                sideVisual
+                Rectangle()
+                    .stroke(Color.white.opacity(0.45), lineWidth: 1)
+                    .background(Color.black)
+                sideVisual
+            }
+            bottomBarVisual
         }
         .allowsHitTesting(false)
+    }
+
+    private var topBarVisual: some View {
+        ZStack {
+            Color(white: 0.12)
+            RoundedRectangle(cornerRadius: 2)
+                .fill(Color.white.opacity(0.55))
+                .frame(width: 48, height: 4)
+        }
+        .frame(height: OverlayChromeLayout.topBarHeight)
+        .overlay(alignment: .bottom) {
+            Rectangle()
+                .fill(Color.white.opacity(0.25))
+                .frame(height: 1)
+        }
+    }
+
+    private var sideVisual: some View {
+        Color(white: 0.12)
+            .frame(width: OverlayChromeLayout.sideInset)
+    }
+
+    private var bottomBarVisual: some View {
+        ZStack {
+            Color(white: 0.12)
+            HStack {
+                cornerBracket(flipHorizontal: true)
+                Spacer()
+                cornerBracket(flipHorizontal: false)
+            }
+            .padding(.horizontal, 4)
+        }
+        .frame(height: OverlayChromeLayout.bottomBarHeight)
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(Color.white.opacity(0.25))
+                .frame(height: 1)
+        }
+    }
+
+    private func cornerBracket(flipHorizontal: Bool) -> some View {
+        let s = OverlayChromeLayout.cornerHandleSize
+        return Path { path in
+            path.move(to: CGPoint(x: 0, y: 0))
+            path.addLine(to: CGPoint(x: 0, y: s * 0.55))
+            path.move(to: CGPoint(x: 0, y: 0))
+            path.addLine(to: CGPoint(x: s * 0.55, y: 0))
+        }
+        .stroke(Color.white.opacity(0.6), lineWidth: 2)
+        .frame(width: s, height: s)
+        .scaleEffect(x: flipHorizontal ? -1 : 1, y: 1)
     }
 }

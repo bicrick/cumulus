@@ -34,15 +34,9 @@ struct SettingsView: View {
                     controller.loadVideo(from: settings.lastVideoURL)
                 }
             }
-
-            Section {
-                Text("Hold \(settings.interactiveModifier.label) while hovering the overlay to use YouTube controls. Drag the top bar or corners while interactive to move or resize.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
         }
         .formStyle(.grouped)
-        .frame(width: 420, height: 480)
+        .frame(width: 420, height: 420)
         .onChange(of: settings.restingOpacity) { _, _ in controller.handleSettingsChanged() }
         .onChange(of: settings.hoverOpacity) { _, _ in controller.handleSettingsChanged() }
         .onChange(of: settings.interactiveOpacity) { _, _ in controller.handleSettingsChanged() }
