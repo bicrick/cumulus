@@ -79,6 +79,8 @@ final class OverlaySettings: ObservableObject {
         static let autoplayMuted = "autoplayMuted"
         static let lastVideoURL = "lastVideoURL"
         static let overlayFrame = "overlayFrame"
+        static let shortsOverlayFrame = "shortsOverlayFrame"
+        static let lastPlaybackMode = "lastPlaybackMode"
         static let snapEnabled = "snapEnabled"
         static let enabledSnapAnchors = "enabledSnapAnchors"
         static let snapEdgeMargin = "snapEdgeMargin"
@@ -119,7 +121,15 @@ final class OverlaySettings: ObservableObject {
     }
 
     @Published var overlayFrame: OverlayFrame {
-        didSet { saveFrame() }
+        didSet { saveFrame(overlayFrame, forKey: Keys.overlayFrame) }
+    }
+
+    @Published var shortsOverlayFrame: OverlayFrame {
+        didSet { saveFrame(shortsOverlayFrame, forKey: Keys.shortsOverlayFrame) }
+    }
+
+    @Published var lastPlaybackMode: PlaybackMode {
+        didSet { defaults.set(lastPlaybackMode.rawValue, forKey: Keys.lastPlaybackMode) }
     }
 
     @Published var snapEnabled: Bool {
@@ -161,6 +171,15 @@ final class OverlaySettings: ObservableObject {
         } else {
             overlayFrame = .default
         }
+        if let data = defaults.data(forKey: Keys.shortsOverlayFrame),
+           let frame = try? JSONDecoder().decode(OverlayFrame.self, from: data) {
+            shortsOverlayFrame = frame
+        } else {
+            let size = ScreenGeometry.shortsSizeMatchingAspect(width: 320)
+            shortsOverlayFrame = OverlayFrame(from: ScreenGeometry.centeredFrame(size: size))
+        }
+        let modeRaw = defaults.string(forKey: Keys.lastPlaybackMode) ?? PlaybackMode.embedded.rawValue
+        lastPlaybackMode = PlaybackMode(rawValue: modeRaw) ?? .embedded
         snapEnabled = defaults.object(forKey: Keys.snapEnabled) as? Bool ?? true
         if let rawAnchors = defaults.stringArray(forKey: Keys.enabledSnapAnchors) {
             enabledSnapAnchors = Set(rawAnchors.compactMap(SnapAnchor.init(rawValue:)))
@@ -184,9 +203,9 @@ final class OverlaySettings: ObservableObject {
         defaults.set(value, forKey: key)
     }
 
-    private func saveFrame() {
-        if let data = try? JSONEncoder().encode(overlayFrame) {
-            defaults.set(data, forKey: Keys.overlayFrame)
+    private func saveFrame(_ frame: OverlayFrame, forKey key: String) {
+        if let data = try? JSONEncoder().encode(frame) {
+            defaults.set(data, forKey: key)
         }
     }
 

@@ -249,7 +249,7 @@ final class OverlayChromeLayer: NSView {
 
     private func resizedContentFrame(from start: NSRect, dx: CGFloat, dy: CGFloat) -> NSRect {
         let minW = ScreenGeometry.minVideoWidth
-        let aspect = ScreenGeometry.videoAspectRatio
+        let aspect = controller?.contentAspectRatio ?? ScreenGeometry.videoAspectRatio
 
         switch placement.resizeCorner {
         case .bottomRight:

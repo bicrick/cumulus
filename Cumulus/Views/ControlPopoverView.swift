@@ -100,20 +100,41 @@ struct ControlPopoverView: View {
 
     private var statusSection: some View {
         VStack(alignment: .leading, spacing: 4) {
-            if let videoID = controller.currentVideoID {
+            if controller.playbackMode == .embedded, let videoID = controller.currentVideoID {
                 Text("Video: \(videoID)")
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
+            } else if controller.playbackMode == .shortsFeed {
+                Text("Shorts feed")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
             } else {
                 Text("Video: none loaded")
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
             }
 
-            Text("Mode: \(modeLabel) · \(opacityPercent)%")
+            Text("Playback: \(controller.playbackMode.label) · \(modeLabel) · \(opacityPercent)%")
                 .font(.system(size: 11))
                 .foregroundStyle(.secondary)
+
+            Text("⌘⇧Y toggle · ⌘⇧H Shorts")
+                .font(.system(size: 10))
+                .foregroundStyle(.tertiary)
+
+            if controller.playbackMode == .shortsFeed {
+                Button("Sign in to YouTube…") {
+                    Task { @MainActor in
+                        if await controller.openYouTubeLogin() {
+                            controller.reloadVideo()
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+                .font(.system(size: 11))
+                .foregroundStyle(CumulusTheme.accent)
+            }
 
             if let error = controller.loadError {
                 Text(error)

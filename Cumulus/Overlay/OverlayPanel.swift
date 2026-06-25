@@ -45,22 +45,64 @@ final class OverlayPanel: NSPanel {
 
 enum ScreenGeometry {
     static let videoAspectRatio: CGFloat = 16.0 / 9.0
+    static let shortsAspectRatio: CGFloat = 9.0 / 16.0
     static let minVideoWidth: CGFloat = 320
     static var minVideoHeight: CGFloat { minVideoWidth / videoAspectRatio }
+    static var minShortsHeight: CGFloat { minVideoWidth / shortsAspectRatio }
 
-    static func sizeMatchingAspect(width: CGFloat) -> NSSize {
-        let w = max(minVideoWidth, width)
-        return NSSize(width: w, height: w / videoAspectRatio)
+    static func aspectRatio(for mode: PlaybackMode) -> CGFloat {
+        switch mode {
+        case .embedded: return videoAspectRatio
+        case .shortsFeed: return shortsAspectRatio
+        }
     }
 
-    static func frameMatchingAspect(origin: NSPoint, width: CGFloat) -> NSRect {
-        let size = sizeMatchingAspect(width: width)
+    static func sizeMatchingAspect(width: CGFloat, aspectRatio: CGFloat = videoAspectRatio) -> NSSize {
+        let w = max(minVideoWidth, width)
+        return NSSize(width: w, height: w / aspectRatio)
+    }
+
+    static func sizeMatchingAspect(width: CGFloat) -> NSSize {
+        sizeMatchingAspect(width: width, aspectRatio: videoAspectRatio)
+    }
+
+    static func shortsSizeMatchingAspect(width: CGFloat) -> NSSize {
+        sizeMatchingAspect(width: width, aspectRatio: shortsAspectRatio)
+    }
+
+    static func frameMatchingAspect(origin: NSPoint, width: CGFloat, aspectRatio: CGFloat = videoAspectRatio) -> NSRect {
+        let size = sizeMatchingAspect(width: width, aspectRatio: aspectRatio)
         return NSRect(origin: origin, size: size)
     }
 
-    static func normalizedFrame(_ frame: NSRect) -> NSRect {
-        let size = sizeMatchingAspect(width: frame.width)
+    static func normalizedFrame(_ frame: NSRect, aspectRatio: CGFloat = videoAspectRatio) -> NSRect {
+        let size = sizeMatchingAspect(width: frame.width, aspectRatio: aspectRatio)
         return NSRect(x: frame.origin.x, y: frame.origin.y, width: size.width, height: size.height)
+    }
+
+    static func normalizedShortsFrame(_ frame: NSRect) -> NSRect {
+        normalizedFrame(frame, aspectRatio: shortsAspectRatio)
+    }
+
+    static func clampContentFrame(_ frame: NSRect, in visibleFrame: NSRect, aspectRatio: CGFloat = videoAspectRatio) -> NSRect {
+        var result = normalizedFrame(frame, aspectRatio: aspectRatio)
+        if result.maxX > visibleFrame.maxX {
+            result.origin.x = visibleFrame.maxX - result.width
+        }
+        if result.minX < visibleFrame.minX {
+            result.origin.x = visibleFrame.minX
+        }
+        if result.maxY > visibleFrame.maxY {
+            result.origin.y = visibleFrame.maxY - result.height
+        }
+        if result.minY < visibleFrame.minY {
+            result.origin.y = visibleFrame.minY
+        }
+        return result
+    }
+
+    static func clampContentFrame(_ frame: NSRect, in visibleFrame: NSRect) -> NSRect {
+        clampContentFrame(frame, in: visibleFrame, aspectRatio: videoAspectRatio)
     }
 
     static func centeredFrame(size: NSSize) -> CGRect {
@@ -86,22 +128,5 @@ enum ScreenGeometry {
     static func screen(for frame: NSRect) -> NSScreen? {
         let center = NSPoint(x: frame.midX, y: frame.midY)
         return NSScreen.screens.first { $0.frame.contains(center) } ?? NSScreen.main
-    }
-
-    static func clampContentFrame(_ frame: NSRect, in visibleFrame: NSRect) -> NSRect {
-        var result = normalizedFrame(frame)
-        if result.maxX > visibleFrame.maxX {
-            result.origin.x = visibleFrame.maxX - result.width
-        }
-        if result.minX < visibleFrame.minX {
-            result.origin.x = visibleFrame.minX
-        }
-        if result.maxY > visibleFrame.maxY {
-            result.origin.y = visibleFrame.maxY - result.height
-        }
-        if result.minY < visibleFrame.minY {
-            result.origin.y = visibleFrame.minY
-        }
-        return result
     }
 }

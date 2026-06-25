@@ -6,15 +6,21 @@ import QuartzCore
 final class OverlayController: ObservableObject {
     @Published private(set) var interactionMode: InteractionMode = .passive
     @Published private(set) var isVisible = false
+    @Published private(set) var playbackMode: PlaybackMode = .embedded
     @Published var currentVideoID: String?
     @Published var loadError: String?
     @Published private(set) var playerGeneration = 0
 
     var onVisibilityChanged: (() -> Void)?
 
+    var contentAspectRatio: CGFloat {
+        ScreenGeometry.aspectRatio(for: playbackMode)
+    }
+
     private var panel: OverlayPanel?
     private var contentView: OverlayContentView?
     private let playerController = YouTubePlayerController()
+    private let shortsFeedController = ShortsFeedController()
     private let inputPoller = InputPoller()
     private let snapEngine = SnapEngine()
     private let snapOverlay = SnapOverlayController()
@@ -28,10 +34,14 @@ final class OverlayController: ObservableObject {
 
     init(settings: OverlaySettings) {
         self.settings = settings
+        self.playbackMode = settings.lastPlaybackMode
         inputPoller.onTick = { [weak self] in
             self?.updateInteractionState()
         }
         playerController.onLoadError = { [weak self] error in
+            self?.loadError = error
+        }
+        shortsFeedController.onLoadError = { [weak self] error in
             self?.loadError = error
         }
     }
@@ -112,7 +122,11 @@ final class OverlayController: ObservableObject {
     }
 
     func clampContentFrame(_ frame: NSRect) -> NSRect {
-        ScreenGeometry.clampContentFrame(frame, in: visibleFrame(for: frame))
+        ScreenGeometry.clampContentFrame(
+            frame,
+            in: visibleFrame(for: frame),
+            aspectRatio: contentAspectRatio
+        )
     }
 
     func showOverlay() {
@@ -121,9 +135,13 @@ final class OverlayController: ObservableObject {
         }
         guard let panel else { return }
 
-        applyFrame(settings.overlayFrame)
+        applyFrame(activeOverlayFrame())
+        attachActivePlayer()
         panel.orderFrontRegardless()
         panel.level = .statusBar
+        if playbackMode == .shortsFeed {
+            panel.makeKeyAndOrderFront(nil)
+        }
         isVisible = true
         onVisibilityChanged?()
         inputPoller.start()
@@ -131,6 +149,7 @@ final class OverlayController: ObservableObject {
     }
 
     func hideOverlay() {
+        persistFrame()
         panel?.orderOut(nil)
         isVisible = false
         onVisibilityChanged?()
@@ -144,6 +163,41 @@ final class OverlayController: ObservableObject {
         } else {
             showOverlay()
         }
+    }
+
+    func toggleShortsFeed() {
+        if isVisible && playbackMode == .shortsFeed {
+            hideOverlay()
+            return
+        }
+
+        setPlaybackMode(.shortsFeed)
+
+        if panel == nil {
+            createPanel()
+        }
+
+        attachActivePlayer()
+
+        Task { @MainActor in
+            await openShortsWithLoginIfNeeded()
+        }
+    }
+
+    func openYouTubeLogin() async -> Bool {
+        await YouTubeLoginWindowController.shared.present()
+    }
+
+    private func openShortsWithLoginIfNeeded() async {
+        if !(await YouTubeSessionStore.isLoggedIn()) {
+            DebugLog.write("YouTube session not found — presenting login")
+            _ = await YouTubeLoginWindowController.shared.present()
+        }
+
+        showOverlay()
+        attachActivePlayer()
+        try? await Task.sleep(nanoseconds: 150_000_000)
+        shortsFeedController.loadFeed()
     }
 
     func closeOverlay() {
@@ -164,6 +218,7 @@ final class OverlayController: ObservableObject {
         }
 
         loadError = nil
+        setPlaybackMode(.embedded)
         currentVideoID = videoID
         settings.lastVideoURL = urlString
 
@@ -171,6 +226,8 @@ final class OverlayController: ObservableObject {
             let size = ScreenGeometry.sizeMatchingAspect(width: max(settings.overlayFrame.width, ScreenGeometry.minVideoWidth))
             settings.overlayFrame = OverlayFrame(from: ScreenGeometry.centeredFrame(size: size))
             createPanel()
+        } else {
+            attachActivePlayer()
         }
 
         playerGeneration += 1
@@ -191,8 +248,10 @@ final class OverlayController: ObservableObject {
     }
 
     func restoreLastVideoIfNeeded() {
+        guard settings.lastPlaybackMode == .embedded else { return }
         guard !settings.lastVideoURL.isEmpty else { return }
         if let videoID = YouTubeURLParser.videoID(from: settings.lastVideoURL) {
+            setPlaybackMode(.embedded)
             currentVideoID = videoID
             let size = ScreenGeometry.sizeMatchingAspect(width: 480)
             settings.overlayFrame = OverlayFrame(from: ScreenGeometry.centeredFrame(size: size))
@@ -210,14 +269,14 @@ final class OverlayController: ObservableObject {
     func persistFrame() {
         guard let panel else { return }
         let content = currentContentFrame()
-        let normalized = ScreenGeometry.normalizedFrame(content)
+        let normalized = normalizeFrame(content)
         let targetWindow = windowFrame(forContent: normalized)
 
         if panel.frame != targetWindow {
             panel.setFrame(targetWindow, display: true)
         }
 
-        settings.overlayFrame = OverlayFrame(from: normalized)
+        saveActiveOverlayFrame(normalized)
         syncVideoLayout()
     }
 
@@ -227,11 +286,11 @@ final class OverlayController: ObservableObject {
 
     func contentFrame(from windowFrame: NSRect) -> NSRect {
         if interactionMode == .interactive || isDragging {
-            return ScreenGeometry.normalizedFrame(
+            return normalizeFrame(
                 OverlayChromeLayout.contentFrame(from: windowFrame, insets: currentChromeInsets)
             )
         }
-        return ScreenGeometry.normalizedFrame(windowFrame)
+        return normalizeFrame(windowFrame)
     }
 
     func applyFrameDirectly(_ frame: NSRect) {
@@ -239,17 +298,17 @@ final class OverlayController: ObservableObject {
     }
 
     func applyContentFrameDirectly(_ contentFrame: NSRect, persist: Bool = true) {
-        let normalized = ScreenGeometry.normalizedFrame(clampContentFrame(contentFrame))
+        let normalized = normalizeFrame(clampContentFrame(contentFrame))
         let windowFrame = windowFrame(forContent: normalized)
         panel?.setFrame(windowFrame, display: true)
         syncVideoLayout()
         if persist {
-            settings.overlayFrame = OverlayFrame(from: normalized)
+            saveActiveOverlayFrame(normalized)
         }
     }
 
     func notifyPlayerResized() {
-        guard let contentView else { return }
+        guard playbackMode == .embedded, let contentView else { return }
         let frame = contentView.videoContainer.bounds
         playerController.notifyResized(
             width: Int(frame.width),
@@ -258,32 +317,105 @@ final class OverlayController: ObservableObject {
     }
 
     func reloadVideo() {
-        guard let videoID = currentVideoID else { return }
-        playerGeneration += 1
-        playerController.load(
-            videoID: videoID,
-            autoplayMuted: settings.autoplayMuted,
-            generation: playerGeneration
-        )
+        switch playbackMode {
+        case .embedded:
+            guard let videoID = currentVideoID else { return }
+            playerGeneration += 1
+            playerController.load(
+                videoID: videoID,
+                autoplayMuted: settings.autoplayMuted,
+                generation: playerGeneration
+            )
+        case .shortsFeed:
+            shortsFeedController.reloadFeed()
+        }
         panel?.orderFrontRegardless()
     }
 
     func centerOverlay() {
-        let size = ScreenGeometry.sizeMatchingAspect(width: max(settings.overlayFrame.width, ScreenGeometry.minVideoWidth))
-        settings.overlayFrame = OverlayFrame(from: ScreenGeometry.centeredFrame(size: size))
-        applyFrame(settings.overlayFrame)
+        let width = max(activeOverlayFrame().width, ScreenGeometry.minVideoWidth)
+        let size: NSSize
+        switch playbackMode {
+        case .embedded:
+            size = ScreenGeometry.sizeMatchingAspect(width: width)
+            settings.overlayFrame = OverlayFrame(from: ScreenGeometry.centeredFrame(size: size))
+        case .shortsFeed:
+            size = ScreenGeometry.shortsSizeMatchingAspect(width: width)
+            settings.shortsOverlayFrame = OverlayFrame(from: ScreenGeometry.centeredFrame(size: size))
+        }
+        applyFrame(activeOverlayFrame())
         panel?.orderFrontRegardless()
     }
 
+    private func setPlaybackMode(_ mode: PlaybackMode) {
+        guard playbackMode != mode else { return }
+
+        if isVisible {
+            persistFrame()
+        }
+
+        playbackMode = mode
+        settings.lastPlaybackMode = mode
+
+        if panel != nil {
+            let preservedOrigin = currentContentFrame().origin
+            let width = max(activeOverlayFrame().width, ScreenGeometry.minVideoWidth)
+            let size: NSSize
+            switch mode {
+            case .embedded:
+                size = ScreenGeometry.sizeMatchingAspect(width: width)
+            case .shortsFeed:
+                size = ScreenGeometry.shortsSizeMatchingAspect(width: width)
+            }
+            var frame = NSRect(origin: preservedOrigin, size: size)
+            frame = clampContentFrame(frame)
+            saveActiveOverlayFrame(frame)
+            applyContentFrameDirectly(frame, persist: true)
+            attachActivePlayer()
+        }
+    }
+
+    private func activeOverlayFrame() -> OverlayFrame {
+        switch playbackMode {
+        case .embedded: return settings.overlayFrame
+        case .shortsFeed: return settings.shortsOverlayFrame
+        }
+    }
+
+    private func saveActiveOverlayFrame(_ rect: NSRect) {
+        let frame = OverlayFrame(from: rect)
+        switch playbackMode {
+        case .embedded:
+            settings.overlayFrame = frame
+        case .shortsFeed:
+            settings.shortsOverlayFrame = frame
+        }
+    }
+
+    private func normalizeFrame(_ frame: NSRect) -> NSRect {
+        ScreenGeometry.normalizedFrame(frame, aspectRatio: contentAspectRatio)
+    }
+
+    private func attachActivePlayer() {
+        guard let contentView else { return }
+        playerController.detach()
+        shortsFeedController.detach()
+        switch playbackMode {
+        case .embedded:
+            playerController.attach(to: contentView.videoContainer)
+        case .shortsFeed:
+            shortsFeedController.attach(to: contentView.videoContainer)
+        }
+        syncVideoLayout()
+    }
+
     private func createPanel() {
-        let frame = settings.overlayFrame.cgRect
+        let frame = activeOverlayFrame().cgRect
         let panel = OverlayPanel(contentRect: frame)
 
         let contentView = OverlayContentView(controller: self)
         contentView.frame = panel.contentView?.bounds ?? .zero
         contentView.autoresizingMask = [.width, .height]
-
-        playerController.attach(to: contentView.videoContainer)
 
         panel.contentView = contentView
         panel.delegate = PanelDelegate.shared
@@ -294,11 +426,11 @@ final class OverlayController: ObservableObject {
         self.panel = panel
         self.contentView = contentView
         contentView.chromeLayer.isHidden = true
-        syncVideoLayout()
+        attachActivePlayer()
     }
 
     private func applyFrame(_ overlayFrame: OverlayFrame) {
-        panel?.setFrame(ScreenGeometry.normalizedFrame(overlayFrame.cgRect), display: true)
+        panel?.setFrame(normalizeFrame(overlayFrame.cgRect), display: true)
         syncVideoLayout()
     }
 
@@ -356,7 +488,13 @@ final class OverlayController: ObservableObject {
                 insets: .zero
             )
         }
-        playerController.layoutInContainer(contentView.videoContainer)
+
+        switch playbackMode {
+        case .embedded:
+            playerController.layoutInContainer(contentView.videoContainer)
+        case .shortsFeed:
+            shortsFeedController.layoutInContainer(contentView.videoContainer)
+        }
     }
 
     private func animateToContentFrame(_ contentFrame: NSRect, completion: @escaping () -> Void) {
@@ -426,7 +564,7 @@ final class OverlayController: ObservableObject {
         guard let panel, let contentView else { return }
 
         if mode == .interactive && previousMode != .interactive {
-            let content = ScreenGeometry.normalizedFrame(
+            let content = normalizeFrame(
                 previousMode == .interactive
                     ? OverlayChromeLayout.contentFrame(from: panel.frame, insets: currentChromeInsets)
                     : panel.frame
@@ -439,13 +577,13 @@ final class OverlayController: ObservableObject {
                 display: true
             )
         } else if mode != .interactive && previousMode == .interactive {
-            let content = ScreenGeometry.normalizedFrame(
+            let content = normalizeFrame(
                 OverlayChromeLayout.contentFrame(from: panel.frame, insets: currentChromeInsets)
             )
             currentChromeInsets = .zero
             currentChromePlacement = .default
             panel.setFrame(content, display: true)
-            settings.overlayFrame = OverlayFrame(from: content)
+            saveActiveOverlayFrame(content)
         }
 
         syncVideoLayout()
@@ -464,6 +602,10 @@ final class OverlayController: ObservableObject {
         contentView.chromeLayer.isHidden = mode != .interactive
         if mode == .interactive {
             contentView.window?.invalidateCursorRects(for: contentView.chromeLayer)
+            if playbackMode == .shortsFeed {
+                panel.makeKey()
+                shortsFeedController.nudgePlayback()
+            }
         }
     }
 

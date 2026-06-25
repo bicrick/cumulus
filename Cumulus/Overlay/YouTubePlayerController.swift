@@ -30,7 +30,12 @@ final class YouTubePlayerController: NSObject, WKNavigationDelegate, WKUIDelegat
         webView.uiDelegate = self
     }
 
+    func detach() {
+        webView.removeFromSuperview()
+    }
+
     func attach(to container: VideoContainerView) {
+        container.setClipMode(.embeddedPlayer)
         webView.frame = container.clipView.bounds
         webView.autoresizingMask = [.width, .height]
         container.clipView.addSubview(webView)

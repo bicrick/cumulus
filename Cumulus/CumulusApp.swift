@@ -16,12 +16,17 @@ final class AppModel: ObservableObject {
     init() {
         controller = OverlayController(settings: settings)
         hotKeyManager = HotKeyManager(
-            onSingleTap: { [weak controller] in
+            onVideoSingleTap: { [weak controller] in
                 controller?.toggleOverlay()
             },
-            onDoubleTap: {
+            onVideoDoubleTap: {
                 Task { @MainActor in
                     AppModelHolder.model?.openQuickInput()
+                }
+            },
+            onShortsToggle: {
+                Task { @MainActor in
+                    AppModelHolder.model?.toggleShortsFeed()
                 }
             }
         )
@@ -64,6 +69,11 @@ final class AppModel: ObservableObject {
 
     func openSettings() {
         statusBar?.openSettings()
+    }
+
+    func toggleShortsFeed() {
+        NSApp.activate(ignoringOtherApps: true)
+        controller.toggleShortsFeed()
     }
 
     func openQuickInput() {

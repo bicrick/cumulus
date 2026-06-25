@@ -8,7 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		01642377D6B32D94E907B53E /* OverlayPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A15792B81C622E53CA2E8368 /* OverlayPanel.swift */; };
+		04C4DCF122B47F12207039D2 /* YouTubeSessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AEBC110ECB9C0FEF59FF8AE /* YouTubeSessionStore.swift */; };
 		0E4347908B2516323EAE5EBD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D920A968629FD690E2C04784 /* Assets.xcassets */; };
+		23B330A4FEF032A5C4117113 /* ShortsFeedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB0A89C95935CE071B86FA92 /* ShortsFeedController.swift */; };
 		2E182F1FE904701331A80134 /* cumulus-app-icon.svg in Resources */ = {isa = PBXBuildFile; fileRef = 21C75A5278BC24BEEBFE155C /* cumulus-app-icon.svg */; };
 		2F9C3258A1281E56A2175EAE /* cumulus-mark.svg in Resources */ = {isa = PBXBuildFile; fileRef = 6FEEB43273FDA3A27B53F75C /* cumulus-mark.svg */; };
 		40DE4DC2AFECD9EF73BFB8EB /* ControlPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 171F29C071ABC28218919211 /* ControlPopoverView.swift */; };
@@ -23,7 +25,9 @@
 		B12593FC18CDD18CB81B2850 /* YouTubePlayerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AFD16A73F34D1BDBAEA4BB1 /* YouTubePlayerController.swift */; };
 		B764F74A85B4A693C7CCCDF0 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 820A466AB2EA3934E7CF9204 /* StatusBarController.swift */; };
 		C742E128F94FC7BDC3393F60 /* OverlayController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DECB52F360A8C2B2AD4DF29D /* OverlayController.swift */; };
+		C801B640C277C9B6573BF796 /* YouTubeLoginWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B534DFC299DE5F409AA256 /* YouTubeLoginWindowController.swift */; };
 		CDB96EA7A6E571985EF8B045 /* YouTubeURLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 604C0C8451D6B8DCF1E43014 /* YouTubeURLParser.swift */; };
+		D24E6CB56A98E74D4B7210AA /* PlaybackMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26FC92B510DDAEC9FA1EB15A /* PlaybackMode.swift */; };
 		D3CB407B47B74B88255337CC /* HotKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25958DAD29B4A2C7FAD3CABC /* HotKeyManager.swift */; };
 		DCFFF0A6155D48648A3B1E38 /* OverlayContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A794414F2E0CEDC83B4DAD12 /* OverlayContentView.swift */; };
 		E019B3E0A7CB87CE7915CBFC /* QuickInputWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A354A8B287DE8DB6D5D6BA2A /* QuickInputWindow.swift */; };
@@ -40,11 +44,13 @@
 		171F29C071ABC28218919211 /* ControlPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlPopoverView.swift; sourceTree = "<group>"; };
 		21C75A5278BC24BEEBFE155C /* cumulus-app-icon.svg */ = {isa = PBXFileReference; path = "cumulus-app-icon.svg"; sourceTree = "<group>"; };
 		25958DAD29B4A2C7FAD3CABC /* HotKeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotKeyManager.swift; sourceTree = "<group>"; };
+		26FC92B510DDAEC9FA1EB15A /* PlaybackMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackMode.swift; sourceTree = "<group>"; };
 		3320A3E4ED074D8703CCA17B /* CumulusApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CumulusApp.swift; sourceTree = "<group>"; };
 		3F7EEE6360B88531682B3998 /* SnapEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapEngine.swift; sourceTree = "<group>"; };
 		404E4FDF4020D106EE722F40 /* CumulusTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CumulusTheme.swift; sourceTree = "<group>"; };
 		4E91F3CAC9C04DEF679BD218 /* embed.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = embed.html; sourceTree = "<group>"; };
 		520690D4E3C9CFDDAAE31C6B /* InputPoller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputPoller.swift; sourceTree = "<group>"; };
+		5AEBC110ECB9C0FEF59FF8AE /* YouTubeSessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeSessionStore.swift; sourceTree = "<group>"; };
 		604C0C8451D6B8DCF1E43014 /* YouTubeURLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeURLParser.swift; sourceTree = "<group>"; };
 		6FEEB43273FDA3A27B53F75C /* cumulus-mark.svg */ = {isa = PBXFileReference; path = "cumulus-mark.svg"; sourceTree = "<group>"; };
 		733CCDBEA9393E4C9CF138F5 /* Cumulus.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Cumulus.entitlements; sourceTree = "<group>"; };
@@ -60,7 +66,9 @@
 		A3AD6F4CE6C5BBDE5B8C942B /* LoopbackWebServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopbackWebServer.swift; sourceTree = "<group>"; };
 		A794414F2E0CEDC83B4DAD12 /* OverlayContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayContentView.swift; sourceTree = "<group>"; };
 		D920A968629FD690E2C04784 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DB0A89C95935CE071B86FA92 /* ShortsFeedController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortsFeedController.swift; sourceTree = "<group>"; };
 		DECB52F360A8C2B2AD4DF29D /* OverlayController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayController.swift; sourceTree = "<group>"; };
+		F1B534DFC299DE5F409AA256 /* YouTubeLoginWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeLoginWindowController.swift; sourceTree = "<group>"; };
 		FA32EDB8FBD95EFBAB8D5481 /* OverlayChromeLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayChromeLayer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -79,6 +87,7 @@
 				D920A968629FD690E2C04784 /* Assets.xcassets */,
 				733CCDBEA9393E4C9CF138F5 /* Cumulus.entitlements */,
 				3320A3E4ED074D8703CCA17B /* CumulusApp.swift */,
+				6ED595E517C251441D2852AC /* Auth */,
 				644A883C599E0CAF077808FF /* Models */,
 				7BD75F63A9377D35F169A781 /* Overlay */,
 				E639C12C89134E775E3EDC0E /* Resources */,
@@ -92,9 +101,18 @@
 			children = (
 				9F143F3446458EB3592DCF27 /* DebugLog.swift */,
 				118FF501694091327E434913 /* OverlaySettings.swift */,
+				26FC92B510DDAEC9FA1EB15A /* PlaybackMode.swift */,
 				604C0C8451D6B8DCF1E43014 /* YouTubeURLParser.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		6ED595E517C251441D2852AC /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				5AEBC110ECB9C0FEF59FF8AE /* YouTubeSessionStore.swift */,
+			);
+			path = Auth;
 			sourceTree = "<group>";
 		};
 		7BD75F63A9377D35F169A781 /* Overlay */ = {
@@ -109,6 +127,7 @@
 				DECB52F360A8C2B2AD4DF29D /* OverlayController.swift */,
 				A15792B81C622E53CA2E8368 /* OverlayPanel.swift */,
 				0CE0F6EF9BDE69FF64E7E5B3 /* SettingsWindowController.swift */,
+				DB0A89C95935CE071B86FA92 /* ShortsFeedController.swift */,
 				3F7EEE6360B88531682B3998 /* SnapEngine.swift */,
 				880F0673F2DE98941E87B1E7 /* SnapOverlayController.swift */,
 				820A466AB2EA3934E7CF9204 /* StatusBarController.swift */,
@@ -123,6 +142,7 @@
 				171F29C071ABC28218919211 /* ControlPopoverView.swift */,
 				A354A8B287DE8DB6D5D6BA2A /* QuickInputWindow.swift */,
 				9045A1E00FD99DACFE9C80CB /* SettingsView.swift */,
+				F1B534DFC299DE5F409AA256 /* YouTubeLoginWindowController.swift */,
 				DBC780DAE672FCA8C2796A5C /* Theme */,
 			);
 			path = Views;
@@ -237,13 +257,17 @@
 				C742E128F94FC7BDC3393F60 /* OverlayController.swift in Sources */,
 				01642377D6B32D94E907B53E /* OverlayPanel.swift in Sources */,
 				4F4A0C7775B489EF80E49ACB /* OverlaySettings.swift in Sources */,
+				D24E6CB56A98E74D4B7210AA /* PlaybackMode.swift in Sources */,
 				E019B3E0A7CB87CE7915CBFC /* QuickInputWindow.swift in Sources */,
 				7BD4502C1E403793D178C5F5 /* SettingsView.swift in Sources */,
 				9C1D930FAFB39E1C75E3600A /* SettingsWindowController.swift in Sources */,
+				23B330A4FEF032A5C4117113 /* ShortsFeedController.swift in Sources */,
 				E544E79EAD028082E0E0668C /* SnapEngine.swift in Sources */,
 				73706F663256211429BDA30A /* SnapOverlayController.swift in Sources */,
 				B764F74A85B4A693C7CCCDF0 /* StatusBarController.swift in Sources */,
+				C801B640C277C9B6573BF796 /* YouTubeLoginWindowController.swift in Sources */,
 				B12593FC18CDD18CB81B2850 /* YouTubePlayerController.swift in Sources */,
+				04C4DCF122B47F12207039D2 /* YouTubeSessionStore.swift in Sources */,
 				CDB96EA7A6E571985EF8B045 /* YouTubeURLParser.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
