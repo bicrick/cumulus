@@ -1,5 +1,6 @@
 import AppKit
-import SwiftUI
+import Foundation
+import QuartzCore
 
 @MainActor
 final class OverlayController: ObservableObject {
@@ -10,21 +11,106 @@ final class OverlayController: ObservableObject {
     @Published private(set) var playerGeneration = 0
 
     var onVisibilityChanged: (() -> Void)?
+
     private var panel: OverlayPanel?
-    private var hostingView: NSHostingView<OverlayRootView>?
+    private var contentView: OverlayContentView?
+    private let playerController = YouTubePlayerController()
     private let inputPoller = InputPoller()
+    private let snapEngine = SnapEngine()
+    private let snapOverlay = SnapOverlayController()
     private var settings: OverlaySettings
-    private var settingsCancellables: [Any] = []
+    private var isWindowBeingManipulated = false
+    private var isDragging = false
+    private var pendingExitMode: InteractionMode?
+    private var exitModeStreak = 0
 
     init(settings: OverlaySettings) {
         self.settings = settings
         inputPoller.onTick = { [weak self] in
             self?.updateInteractionState()
         }
+        playerController.onLoadError = { [weak self] error in
+            self?.loadError = error
+        }
     }
 
     func bind(settings: OverlaySettings) {
         self.settings = settings
+    }
+
+    func beginWindowManipulation() {
+        isWindowBeingManipulated = true
+    }
+
+    func endWindowManipulation() {
+        isWindowBeingManipulated = false
+    }
+
+    func beginDrag() {
+        isDragging = true
+        beginWindowManipulation()
+        DebugLog.write("Drag started")
+    }
+
+    func finishDrag() {
+        guard isDragging else { return }
+
+        let content = currentContentFrame()
+        if settings.snapEnabled {
+            let visible = visibleFrame(for: content)
+            let candidates = snapEngine.snapFrames(
+                for: content.size,
+                in: visible,
+                margin: CGFloat(settings.snapEdgeMargin),
+                enabled: settings.enabledSnapAnchors
+            )
+            if let anchor = snapEngine.nearestAnchor(
+                to: content,
+                candidates: candidates,
+                threshold: CGFloat(settings.snapThreshold)
+            ), let target = candidates[anchor] {
+                DebugLog.write("Snapping to \(anchor.rawValue)")
+                animateToContentFrame(target) { [weak self] in
+                    self?.completeDrag()
+                }
+                return
+            }
+        }
+
+        completeDrag()
+    }
+
+    private func completeDrag() {
+        persistFrame()
+        snapOverlay.hide()
+        isDragging = false
+        endWindowManipulation()
+        DebugLog.write("Drag ended")
+    }
+
+    func updateSnapPreview(for contentFrame: NSRect) {
+        guard settings.snapEnabled else {
+            snapOverlay.hide()
+            return
+        }
+
+        let visible = visibleFrame(for: contentFrame)
+        let candidates = snapEngine.snapFrames(
+            for: contentFrame.size,
+            in: visible,
+            margin: CGFloat(settings.snapEdgeMargin),
+            enabled: settings.enabledSnapAnchors
+        )
+        let highlighted = snapEngine.nearestAnchor(
+            to: contentFrame,
+            candidates: candidates,
+            threshold: CGFloat(settings.snapThreshold)
+        )
+        snapOverlay.show(on: ScreenGeometry.screen(for: contentFrame), candidates: candidates, highlighted: highlighted)
+    }
+
+    func clampContentFrame(_ frame: NSRect) -> NSRect {
+        ScreenGeometry.clampContentFrame(frame, in: visibleFrame(for: frame))
     }
 
     func showOverlay() {
@@ -47,6 +133,7 @@ final class OverlayController: ObservableObject {
         isVisible = false
         onVisibilityChanged?()
         inputPoller.stop()
+        snapOverlay.hide()
     }
 
     func toggleOverlay() {
@@ -62,7 +149,7 @@ final class OverlayController: ObservableObject {
         hideOverlay()
         panel?.close()
         panel = nil
-        hostingView = nil
+        contentView = nil
         currentVideoID = nil
     }
 
@@ -71,7 +158,6 @@ final class OverlayController: ObservableObject {
 
         guard let videoID = YouTubeURLParser.videoID(from: urlString) else {
             loadError = "Could not parse YouTube URL."
-            DebugLog.write("Failed to parse URL")
             return
         }
 
@@ -84,22 +170,22 @@ final class OverlayController: ObservableObject {
 
         if panel == nil {
             createPanel()
-        } else {
-            refreshHostingView()
         }
 
         playerGeneration += 1
+        playerController.load(
+            videoID: videoID,
+            autoplayMuted: settings.autoplayMuted,
+            generation: playerGeneration
+        )
         showOverlay()
-        DebugLog.write("Showing overlay for videoID=\(videoID) frame=\(settings.overlayFrame)")
     }
 
     func pasteFromClipboard() {
         guard let clipboard = NSPasteboard.general.string(forType: .string) else {
             loadError = "Clipboard is empty."
-            DebugLog.write("Clipboard empty")
             return
         }
-        DebugLog.write("Clipboard: \(clipboard.prefix(120))")
         loadVideo(from: clipboard)
     }
 
@@ -111,123 +197,204 @@ final class OverlayController: ObservableObject {
             settings.overlayFrame = OverlayFrame(from: ScreenGeometry.centeredFrame(size: size))
             playerGeneration += 1
             createPanel()
+            playerController.load(
+                videoID: videoID,
+                autoplayMuted: settings.autoplayMuted,
+                generation: playerGeneration
+            )
             showOverlay()
-            DebugLog.write("Restored last video \(videoID)")
         }
     }
 
     func persistFrame() {
         guard let panel else { return }
-        let content = interactionMode == .interactive
-            ? OverlayChromeLayout.contentFrame(from: panel.frame)
-            : panel.frame
-        settings.overlayFrame = OverlayFrame(from: ScreenGeometry.normalizedFrame(content))
+        let content = currentContentFrame()
+        let normalized = ScreenGeometry.normalizedFrame(content)
+        let targetWindow = windowFrame(forContent: normalized)
+
+        if panel.frame != targetWindow {
+            panel.setFrame(targetWindow, display: true)
+        }
+
+        settings.overlayFrame = OverlayFrame(from: normalized)
+        syncVideoLayout()
     }
 
     var panelFrame: NSRect? {
         panel?.frame
     }
 
+    func contentFrame(from windowFrame: NSRect) -> NSRect {
+        if interactionMode == .interactive || isDragging {
+            return ScreenGeometry.normalizedFrame(OverlayChromeLayout.contentFrame(from: windowFrame))
+        }
+        return ScreenGeometry.normalizedFrame(windowFrame)
+    }
+
     func applyFrameDirectly(_ frame: NSRect) {
         applyContentFrameDirectly(frame)
     }
 
-    func applyContentFrameDirectly(_ contentFrame: NSRect) {
-        let normalized = ScreenGeometry.normalizedFrame(contentFrame)
-        let windowFrame = interactionMode == .interactive
-            ? OverlayChromeLayout.windowFrame(forContentRect: normalized)
-            : normalized
+    func applyContentFrameDirectly(_ contentFrame: NSRect, persist: Bool = true) {
+        let normalized = ScreenGeometry.normalizedFrame(clampContentFrame(contentFrame))
+        let windowFrame = windowFrame(forContent: normalized)
         panel?.setFrame(windowFrame, display: true)
-        settings.overlayFrame = OverlayFrame(from: normalized)
+        syncVideoLayout()
+        if persist {
+            settings.overlayFrame = OverlayFrame(from: normalized)
+        }
+    }
+
+    func notifyPlayerResized() {
+        guard let contentView else { return }
+        let frame = contentView.videoContainer.bounds
+        playerController.notifyResized(
+            width: Int(frame.width),
+            height: Int(frame.height)
+        )
     }
 
     func reloadVideo() {
-        guard currentVideoID != nil else { return }
+        guard let videoID = currentVideoID else { return }
         playerGeneration += 1
-        refreshHostingView()
-        if isVisible {
-            panel?.orderFrontRegardless()
-        }
-        DebugLog.write("Reloaded video player")
+        playerController.load(
+            videoID: videoID,
+            autoplayMuted: settings.autoplayMuted,
+            generation: playerGeneration
+        )
+        panel?.orderFrontRegardless()
     }
 
     func centerOverlay() {
         let size = ScreenGeometry.sizeMatchingAspect(width: max(settings.overlayFrame.width, ScreenGeometry.minVideoWidth))
         settings.overlayFrame = OverlayFrame(from: ScreenGeometry.centeredFrame(size: size))
         applyFrame(settings.overlayFrame)
-        if isVisible {
-            panel?.orderFrontRegardless()
-        } else {
-            showOverlay()
-        }
-        DebugLog.write("Centered overlay at \(settings.overlayFrame)")
+        panel?.orderFrontRegardless()
     }
 
     private func createPanel() {
         let frame = settings.overlayFrame.cgRect
         let panel = OverlayPanel(contentRect: frame)
 
-        let rootView = OverlayRootView(
-            controller: self,
-            settings: settings
-        )
-        let hostingView = NSHostingView(rootView: rootView)
-        hostingView.frame = panel.contentView?.bounds ?? .zero
-        hostingView.autoresizingMask = [.width, .height]
+        let contentView = OverlayContentView(controller: self)
+        contentView.frame = panel.contentView?.bounds ?? .zero
+        contentView.autoresizingMask = [.width, .height]
 
-        panel.contentView = hostingView
+        playerController.attach(to: contentView.videoContainer)
+
+        panel.contentView = contentView
         panel.delegate = PanelDelegate.shared
         panel.alphaValue = CGFloat(settings.restingOpacity)
         panel.ignoresMouseEvents = settings.clickThroughWhenPassive
+        OverlayPanel.configureTransparency(for: panel)
 
         self.panel = panel
-        self.hostingView = hostingView
-        DebugLog.write("Created overlay panel at \(frame)")
-    }
-
-    private func refreshHostingView() {
-        guard let hostingView else { return }
-        hostingView.rootView = OverlayRootView(controller: self, settings: settings)
-    }
-
-    private func reloadWebView() {
-        refreshHostingView()
+        self.contentView = contentView
+        contentView.chromeLayer.isHidden = true
+        syncVideoLayout()
     }
 
     private func applyFrame(_ overlayFrame: OverlayFrame) {
         panel?.setFrame(ScreenGeometry.normalizedFrame(overlayFrame.cgRect), display: true)
+        syncVideoLayout()
+    }
+
+    private func currentContentFrame() -> NSRect {
+        guard let panel else { return .zero }
+        return contentFrame(from: panel.frame)
+    }
+
+    private func windowFrame(forContent content: NSRect) -> NSRect {
+        if interactionMode == .interactive || isDragging {
+            return OverlayChromeLayout.windowFrame(forContentRect: content)
+        }
+        return content
+    }
+
+    private func visibleFrame(for contentFrame: NSRect) -> NSRect {
+        ScreenGeometry.screen(for: contentFrame)?.visibleFrame ?? NSScreen.main?.visibleFrame ?? .zero
+    }
+
+    private func syncVideoLayout() {
+        guard let contentView else { return }
+        let interactive = interactionMode == .interactive || isDragging
+        let videoRect = interactive
+            ? OverlayChromeLayout.videoRect(in: contentView.bounds)
+            : contentView.bounds
+        contentView.syncLayout(interactive: interactive, videoRect: videoRect)
+        playerController.layoutInContainer(contentView.videoContainer)
+    }
+
+    private func animateToContentFrame(_ contentFrame: NSRect, completion: @escaping () -> Void) {
+        guard let panel else {
+            completion()
+            return
+        }
+
+        let targetWindow = windowFrame(forContent: contentFrame)
+        let duration = settings.snapAnimationMs / 1000.0
+
+        beginWindowManipulation()
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = duration
+            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            panel.animator().setFrame(targetWindow, display: true)
+        } completionHandler: { [weak self] in
+            self?.syncVideoLayout()
+            completion()
+        }
     }
 
     func updateInteractionState() {
-        guard let panel, isVisible else { return }
+        guard let panel, isVisible, !isWindowBeingManipulated else { return }
 
         let mouse = NSEvent.mouseLocation
         let frame = panel.frame
         let isInside = frame.contains(mouse)
         let modifierHeld = NSEvent.modifierFlags.contains(settings.interactiveModifier)
 
-        let newMode: InteractionMode
+        let rawMode: InteractionMode
         if isInside && modifierHeld {
-            newMode = .interactive
+            rawMode = .interactive
         } else if isInside {
-            newMode = .hover
+            rawMode = .hover
         } else {
-            newMode = .passive
+            rawMode = .passive
         }
+
+        let newMode = debouncedMode(rawMode)
 
         if newMode != interactionMode {
             let previousMode = interactionMode
             interactionMode = newMode
+            DebugLog.write("Interaction mode: \(previousMode) -> \(newMode)")
             applyMode(newMode, from: previousMode)
         }
     }
 
-    private func applyMode(_ mode: InteractionMode, from previousMode: InteractionMode) {
-        guard let panel else { return }
+    private func debouncedMode(_ rawMode: InteractionMode) -> InteractionMode {
+        if interactionMode == .interactive && rawMode != .interactive {
+            if pendingExitMode == rawMode {
+                exitModeStreak += 1
+            } else {
+                pendingExitMode = rawMode
+                exitModeStreak = 1
+            }
+            return exitModeStreak >= 2 ? rawMode : .interactive
+        }
 
-        // Expand / contract window so chrome sits outside the video
+        pendingExitMode = nil
+        exitModeStreak = 0
+        return rawMode
+    }
+
+    private func applyMode(_ mode: InteractionMode, from previousMode: InteractionMode) {
+        guard let panel, let contentView else { return }
+
         if mode == .interactive && previousMode != .interactive {
-            let content = ScreenGeometry.normalizedFrame(panel.frame)
+            let content = ScreenGeometry.normalizedFrame(
+                previousMode == .interactive ? OverlayChromeLayout.contentFrame(from: panel.frame) : panel.frame
+            )
             panel.setFrame(OverlayChromeLayout.windowFrame(forContentRect: content), display: true)
         } else if mode != .interactive && previousMode == .interactive {
             let content = ScreenGeometry.normalizedFrame(
@@ -237,6 +404,9 @@ final class OverlayController: ObservableObject {
             settings.overlayFrame = OverlayFrame(from: content)
         }
 
+        syncVideoLayout()
+        OverlayPanel.configureTransparency(for: panel)
+
         let targetOpacity = settings.opacity(for: mode)
         let duration = settings.transitionMs / 1000.0
 
@@ -245,31 +415,23 @@ final class OverlayController: ObservableObject {
             panel.animator().alphaValue = CGFloat(targetOpacity)
         }
 
-        switch mode {
-        case .passive, .hover:
-            panel.ignoresMouseEvents = settings.clickThroughWhenPassive
-        case .interactive:
-            panel.ignoresMouseEvents = false
+        panel.ignoresMouseEvents = mode != .interactive && settings.clickThroughWhenPassive
+        panel.acceptsMouseMovedEvents = mode == .interactive
+        contentView.chromeLayer.isHidden = mode != .interactive
+        if mode == .interactive {
+            contentView.window?.invalidateCursorRects(for: contentView.chromeLayer)
         }
-    }
-
-    func embedURL(for videoID: String) -> URL? {
-        YouTubeURLParser.embedURL(videoID: videoID, autoplayMuted: settings.autoplayMuted)
     }
 
     func handleSettingsChanged() {
         if isVisible {
             applyMode(interactionMode, from: interactionMode)
         }
-        if currentVideoID != nil {
-            playerGeneration += 1
-            refreshHostingView()
-        }
     }
-}
 
-enum ResizeCorner {
-    case topLeft, topRight, bottomLeft, bottomRight
+    func embedURL(for videoID: String) -> URL? {
+        YouTubeURLParser.embedURL(videoID: videoID, autoplayMuted: settings.autoplayMuted)
+    }
 }
 
 private final class PanelDelegate: NSObject, NSWindowDelegate {
@@ -278,13 +440,5 @@ private final class PanelDelegate: NSObject, NSWindowDelegate {
     func windowWillClose(_ notification: Notification) {
         guard let panel = notification.object as? NSWindow else { return }
         panel.orderOut(nil)
-    }
-
-    func windowDidMove(_ notification: Notification) {
-        // Frame persistence handled by controller drag/resize
-    }
-
-    func windowDidResize(_ notification: Notification) {
-        // Frame persistence handled by controller drag/resize
     }
 }

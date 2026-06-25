@@ -3,7 +3,7 @@ import AppKit
 @MainActor
 final class InputPoller {
     private var timer: Timer?
-    private let interval: TimeInterval = 1.0 / 60.0
+    private let interval: TimeInterval = 1.0 / 30.0
     var onTick: (() -> Void)?
 
     func start() {

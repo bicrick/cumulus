@@ -121,6 +121,7 @@ final class LoopbackWebServer {
 
         let pageOrigin = origin
         let encodedOrigin = pageOrigin.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? pageOrigin
+        let muteJS = autoplayMuted ? "1" : "0"
         return """
         <!DOCTYPE html>
         <html lang="en">
@@ -130,16 +131,43 @@ final class LoopbackWebServer {
           <meta name="referrer" content="strict-origin-when-cross-origin">
           <style>
             html, body { margin:0; padding:0; width:100%; height:100%; background:#000; overflow:hidden; }
-            iframe { width:100%; height:100%; border:0; display:block; }
+            #player { width:100%; height:100%; }
           </style>
         </head>
         <body>
-          <iframe
-            src="https://www.youtube-nocookie.com/embed/\(videoID)?autoplay=1&playsinline=1&controls=1&enablejsapi=1&modestbranding=1&rel=0&mute=\(autoplayMuted ? "1" : "0")&origin=\(encodedOrigin)"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allowfullscreen>
-          </iframe>
+          <div id="player"></div>
+          <script>
+            var tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/iframe_api";
+            var firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+            var player;
+            function onYouTubeIframeAPIReady() {
+              player = new YT.Player('player', {
+                videoId: '\(videoID)',
+                playerVars: {
+                  autoplay: 1,
+                  playsinline: 1,
+                  controls: 1,
+                  enablejsapi: 1,
+                  modestbranding: 1,
+                  rel: 0,
+                  mute: \(muteJS),
+                  origin: '\(pageOrigin)'
+                },
+                events: {
+                  onReady: function(e) { e.target.playVideo(); }
+                }
+              });
+            }
+
+            window.cumulusSetSize = function(w, h) {
+              if (player && player.setSize) {
+                player.setSize(w, h);
+              }
+            };
+          </script>
         </body>
         </html>
         """

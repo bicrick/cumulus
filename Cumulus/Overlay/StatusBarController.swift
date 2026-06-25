@@ -1,71 +1,121 @@
 import AppKit
+import SwiftUI
 
 @MainActor
-final class StatusBarController {
+final class StatusBarController: NSObject {
     private let statusItem: NSStatusItem
     private weak var appModel: AppModel?
-    private var showHideItem: NSMenuItem?
+    private var popover: NSPopover?
+    private var eventMonitor: Any?
 
     init(appModel: AppModel) {
         self.appModel = appModel
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        super.init()
         configureButton()
-        statusItem.menu = buildMenu()
+        setupPopover()
+    }
+
+    deinit {
+        if let eventMonitor {
+            NSEvent.removeMonitor(eventMonitor)
+        }
     }
 
     private func configureButton() {
         guard let button = statusItem.button else { return }
 
-        button.image = nil
-        button.title = "Cumulus"
-        button.imagePosition = .noImage
+        if let image = NSImage(named: "MenuBarIcon") {
+            image.isTemplate = true
+            button.image = image
+        }
+        button.title = ""
+        button.imagePosition = .imageOnly
+        button.action = #selector(statusItemClicked(_:))
+        button.target = self
+        button.sendAction(on: [.leftMouseUp, .rightMouseUp])
     }
 
-    func refreshMenu() {
-        statusItem.menu = buildMenu()
+    private func setupPopover() {
+        let popover = NSPopover()
+        popover.behavior = .transient
+        popover.animates = true
+        self.popover = popover
     }
 
-    private func buildMenu() -> NSMenu {
+    func togglePopover() {
+        guard let button = statusItem.button else { return }
+        if popover?.isShown == true {
+            closePopover()
+        } else {
+            showPopover(relativeTo: button.bounds, of: button)
+        }
+    }
+
+    func showPopover() {
+        guard let button = statusItem.button else { return }
+        showPopover(relativeTo: button.bounds, of: button)
+    }
+
+    func openSettings() {
+        guard let appModel else { return }
+        closePopover()
+        DispatchQueue.main.async { [statusItem] in
+            SettingsWindowController.shared.open(appModel: appModel, anchorTo: statusItem)
+        }
+    }
+
+    private func showPopover(relativeTo rect: NSRect, of view: NSView) {
+        guard let appModel, let popover else { return }
+
+        popover.contentViewController = NSHostingController(
+            rootView: ControlPopoverView(appModel: appModel)
+        )
+        popover.show(relativeTo: rect, of: view, preferredEdge: .minY)
+        startEventMonitor()
+    }
+
+    private func closePopover() {
+        popover?.performClose(nil)
+        stopEventMonitor()
+    }
+
+    private func startEventMonitor() {
+        stopEventMonitor()
+        eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
+            Task { @MainActor in
+                guard let self, self.popover?.isShown == true else { return }
+                if self.isMouseInsidePopover(event) {
+                    return
+                }
+                self.closePopover()
+            }
+        }
+    }
+
+    private func stopEventMonitor() {
+        if let eventMonitor {
+            NSEvent.removeMonitor(eventMonitor)
+            self.eventMonitor = nil
+        }
+    }
+
+    private func isMouseInsidePopover(_ event: NSEvent) -> Bool {
+        guard let popoverWindow = popover?.contentViewController?.view.window else { return false }
+        return popoverWindow.frame.contains(NSEvent.mouseLocation)
+    }
+
+    @objc private func statusItemClicked(_ sender: NSStatusBarButton) {
+        let event = NSApp.currentEvent
+        if event?.type == .rightMouseUp {
+            showContextMenu()
+            return
+        }
+        togglePopover()
+    }
+
+    private func showContextMenu() {
         let menu = NSMenu()
-
-        let pasteItem = NSMenuItem(
-            title: "Paste URL & Open",
-            action: #selector(pasteURL),
-            keyEquivalent: "v"
-        )
-        pasteItem.keyEquivalentModifierMask = [.command, .shift]
-        pasteItem.target = self
-        menu.addItem(pasteItem)
-
-        let visible = appModel?.controller.isVisible ?? false
-        let showHide = NSMenuItem(
-            title: visible ? "Hide Overlay" : "Show Overlay",
-            action: #selector(toggleOverlay),
-            keyEquivalent: ""
-        )
-        showHide.target = self
-        showHideItem = showHide
-        menu.addItem(showHide)
-
-        menu.addItem(.separator())
-
-        let settingsItem = NSMenuItem(
-            title: "Settings…",
-            action: #selector(openSettings),
-            keyEquivalent: ","
-        )
-        settingsItem.target = self
-        menu.addItem(settingsItem)
-
-        let closeItem = NSMenuItem(
-            title: "Close Overlay",
-            action: #selector(closeOverlay),
-            keyEquivalent: ""
-        )
-        closeItem.target = self
-        menu.addItem(closeItem)
-
-        menu.addItem(.separator())
 
         let quitItem = NSMenuItem(
             title: "Quit Cumulus",
@@ -75,27 +125,8 @@ final class StatusBarController {
         quitItem.target = self
         menu.addItem(quitItem)
 
-        return menu
-    }
-
-    @objc private func pasteURL() {
-        appModel?.controller.pasteFromClipboard()
-        refreshMenu()
-    }
-
-    @objc private func toggleOverlay() {
-        appModel?.controller.toggleOverlay()
-        refreshMenu()
-    }
-
-    @objc private func openSettings() {
-        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-        NSApp.activate(ignoringOtherApps: true)
-    }
-
-    @objc private func closeOverlay() {
-        appModel?.controller.closeOverlay()
-        refreshMenu()
+        guard let button = statusItem.button else { return }
+        menu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.height + 4), in: button)
     }
 
     @objc private func quit() {

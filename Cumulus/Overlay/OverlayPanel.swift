@@ -4,7 +4,7 @@ final class OverlayPanel: NSPanel {
     init(contentRect: NSRect) {
         super.init(
             contentRect: contentRect,
-            styleMask: [.borderless, .nonactivatingPanel],
+            styleMask: [.borderless, .nonactivatingPanel, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
@@ -12,14 +12,31 @@ final class OverlayPanel: NSPanel {
         isFloatingPanel = true
         level = .statusBar
         isOpaque = false
-        backgroundColor = NSColor.black.withAlphaComponent(0.85)
-        hasShadow = true
+        backgroundColor = .clear
+        hasShadow = false
         titleVisibility = .hidden
         titlebarAppearsTransparent = true
         isMovableByWindowBackground = false
         collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
         hidesOnDeactivate = false
         becomesKeyOnlyIfNeeded = true
+
+        Self.configureTransparency(for: self)
+    }
+
+    /// Ensures chrome margins composite as fully transparent (desktop shows through).
+    static func configureTransparency(for panel: NSPanel) {
+        panel.isOpaque = false
+        panel.backgroundColor = .clear
+        panel.hasShadow = false
+
+        var view: NSView? = panel.contentView
+        while let current = view {
+            current.wantsLayer = true
+            current.layer?.backgroundColor = NSColor.clear.cgColor
+            current.layer?.isOpaque = false
+            view = current.superview
+        }
     }
 
     override var canBecomeKey: Bool { true }
@@ -64,5 +81,27 @@ enum ScreenGeometry {
         return NSScreen.screens.contains { screen in
             screen.visibleFrame.intersects(frame)
         }
+    }
+
+    static func screen(for frame: NSRect) -> NSScreen? {
+        let center = NSPoint(x: frame.midX, y: frame.midY)
+        return NSScreen.screens.first { $0.frame.contains(center) } ?? NSScreen.main
+    }
+
+    static func clampContentFrame(_ frame: NSRect, in visibleFrame: NSRect) -> NSRect {
+        var result = normalizedFrame(frame)
+        if result.maxX > visibleFrame.maxX {
+            result.origin.x = visibleFrame.maxX - result.width
+        }
+        if result.minX < visibleFrame.minX {
+            result.origin.x = visibleFrame.minX
+        }
+        if result.maxY > visibleFrame.maxY {
+            result.origin.y = visibleFrame.maxY - result.height
+        }
+        if result.minY < visibleFrame.minY {
+            result.origin.y = visibleFrame.minY
+        }
+        return result
     }
 }

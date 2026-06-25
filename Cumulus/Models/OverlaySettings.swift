@@ -79,6 +79,11 @@ final class OverlaySettings: ObservableObject {
         static let autoplayMuted = "autoplayMuted"
         static let lastVideoURL = "lastVideoURL"
         static let overlayFrame = "overlayFrame"
+        static let snapEnabled = "snapEnabled"
+        static let enabledSnapAnchors = "enabledSnapAnchors"
+        static let snapEdgeMargin = "snapEdgeMargin"
+        static let snapThreshold = "snapThreshold"
+        static let snapAnimationMs = "snapAnimationMs"
     }
 
     @Published var restingOpacity: Double {
@@ -117,6 +122,26 @@ final class OverlaySettings: ObservableObject {
         didSet { saveFrame() }
     }
 
+    @Published var snapEnabled: Bool {
+        didSet { defaults.set(snapEnabled, forKey: Keys.snapEnabled) }
+    }
+
+    @Published var enabledSnapAnchors: Set<SnapAnchor> {
+        didSet { saveSnapAnchors() }
+    }
+
+    @Published var snapEdgeMargin: Double {
+        didSet { save(snapEdgeMargin, forKey: Keys.snapEdgeMargin) }
+    }
+
+    @Published var snapThreshold: Double {
+        didSet { save(snapThreshold, forKey: Keys.snapThreshold) }
+    }
+
+    @Published var snapAnimationMs: Double {
+        didSet { save(snapAnimationMs, forKey: Keys.snapAnimationMs) }
+    }
+
     private let defaults: UserDefaults
 
     init(defaults: UserDefaults = .standard) {
@@ -136,6 +161,15 @@ final class OverlaySettings: ObservableObject {
         } else {
             overlayFrame = .default
         }
+        snapEnabled = defaults.object(forKey: Keys.snapEnabled) as? Bool ?? true
+        if let rawAnchors = defaults.stringArray(forKey: Keys.enabledSnapAnchors) {
+            enabledSnapAnchors = Set(rawAnchors.compactMap(SnapAnchor.init(rawValue:)))
+        } else {
+            enabledSnapAnchors = SnapAnchor.defaultCorners
+        }
+        snapEdgeMargin = defaults.object(forKey: Keys.snapEdgeMargin) as? Double ?? 16
+        snapThreshold = defaults.object(forKey: Keys.snapThreshold) as? Double ?? 80
+        snapAnimationMs = defaults.object(forKey: Keys.snapAnimationMs) as? Double ?? 180
     }
 
     func opacity(for mode: InteractionMode) -> Double {
@@ -154,5 +188,9 @@ final class OverlaySettings: ObservableObject {
         if let data = try? JSONEncoder().encode(overlayFrame) {
             defaults.set(data, forKey: Keys.overlayFrame)
         }
+    }
+
+    private func saveSnapAnchors() {
+        defaults.set(enabledSnapAnchors.map(\.rawValue), forKey: Keys.enabledSnapAnchors)
     }
 }

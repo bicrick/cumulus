@@ -8,44 +8,58 @@
 
 /* Begin PBXBuildFile section */
 		01642377D6B32D94E907B53E /* OverlayPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A15792B81C622E53CA2E8368 /* OverlayPanel.swift */; };
-		491D17BD5B23E5EE5BCDCA49 /* ControlPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E3E2E717F9495738E0C074 /* ControlPanelView.swift */; };
+		0E4347908B2516323EAE5EBD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D920A968629FD690E2C04784 /* Assets.xcassets */; };
+		2E182F1FE904701331A80134 /* cumulus-app-icon.svg in Resources */ = {isa = PBXBuildFile; fileRef = 21C75A5278BC24BEEBFE155C /* cumulus-app-icon.svg */; };
+		2F9C3258A1281E56A2175EAE /* cumulus-mark.svg in Resources */ = {isa = PBXBuildFile; fileRef = 6FEEB43273FDA3A27B53F75C /* cumulus-mark.svg */; };
+		40DE4DC2AFECD9EF73BFB8EB /* ControlPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 171F29C071ABC28218919211 /* ControlPopoverView.swift */; };
 		4EC83CC324279E50DB44911D /* OverlayChromeLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81B6343CF524E197F6318B96 /* OverlayChromeLayout.swift */; };
 		4F4A0C7775B489EF80E49ACB /* OverlaySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 118FF501694091327E434913 /* OverlaySettings.swift */; };
 		58C0495E59D6765F875E02BF /* LoopbackWebServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3AD6F4CE6C5BBDE5B8C942B /* LoopbackWebServer.swift */; };
-		5D426C5611FA3F8791649369 /* OverlayInteractiveChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23A60952924A1A0E7749B906 /* OverlayInteractiveChrome.swift */; };
+		6578B726B0343B7B6C27FC05 /* CumulusTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404E4FDF4020D106EE722F40 /* CumulusTheme.swift */; };
 		71404BCE4BB367AE30AC506E /* InputPoller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 520690D4E3C9CFDDAAE31C6B /* InputPoller.swift */; };
+		73706F663256211429BDA30A /* SnapOverlayController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 880F0673F2DE98941E87B1E7 /* SnapOverlayController.swift */; };
 		7BD4502C1E403793D178C5F5 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9045A1E00FD99DACFE9C80CB /* SettingsView.swift */; };
-		7F838C0BFA1DCAD2BBF644A4 /* YouTubeWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95F7542F5D426BCF99CD5281 /* YouTubeWebView.swift */; };
-		80E7320BF9DEBEF1DC7E4CB2 /* OverlayRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBAC091B4A3077F5C8187D35 /* OverlayRootView.swift */; };
+		9C1D930FAFB39E1C75E3600A /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CE0F6EF9BDE69FF64E7E5B3 /* SettingsWindowController.swift */; };
+		B12593FC18CDD18CB81B2850 /* YouTubePlayerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AFD16A73F34D1BDBAEA4BB1 /* YouTubePlayerController.swift */; };
 		B764F74A85B4A693C7CCCDF0 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 820A466AB2EA3934E7CF9204 /* StatusBarController.swift */; };
 		C742E128F94FC7BDC3393F60 /* OverlayController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DECB52F360A8C2B2AD4DF29D /* OverlayController.swift */; };
 		CDB96EA7A6E571985EF8B045 /* YouTubeURLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 604C0C8451D6B8DCF1E43014 /* YouTubeURLParser.swift */; };
 		D3CB407B47B74B88255337CC /* HotKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25958DAD29B4A2C7FAD3CABC /* HotKeyManager.swift */; };
+		DCFFF0A6155D48648A3B1E38 /* OverlayContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A794414F2E0CEDC83B4DAD12 /* OverlayContentView.swift */; };
+		E544E79EAD028082E0E0668C /* SnapEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F7EEE6360B88531682B3998 /* SnapEngine.swift */; };
+		E84B63BE13663D78B1A780AD /* OverlayChromeLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA32EDB8FBD95EFBAB8D5481 /* OverlayChromeLayer.swift */; };
 		ED3BF8EE69ACF403A631B7B0 /* DebugLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F143F3446458EB3592DCF27 /* DebugLog.swift */; };
 		EE0A4C07F7AE357B56DF04C4 /* CumulusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3320A3E4ED074D8703CCA17B /* CumulusApp.swift */; };
 		FD4E9ACDFBE7B390E2F5492B /* embed.html in Resources */ = {isa = PBXBuildFile; fileRef = 4E91F3CAC9C04DEF679BD218 /* embed.html */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0CE0F6EF9BDE69FF64E7E5B3 /* SettingsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowController.swift; sourceTree = "<group>"; };
 		118FF501694091327E434913 /* OverlaySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlaySettings.swift; sourceTree = "<group>"; };
-		23A60952924A1A0E7749B906 /* OverlayInteractiveChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayInteractiveChrome.swift; sourceTree = "<group>"; };
+		171F29C071ABC28218919211 /* ControlPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlPopoverView.swift; sourceTree = "<group>"; };
+		21C75A5278BC24BEEBFE155C /* cumulus-app-icon.svg */ = {isa = PBXFileReference; path = "cumulus-app-icon.svg"; sourceTree = "<group>"; };
 		25958DAD29B4A2C7FAD3CABC /* HotKeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotKeyManager.swift; sourceTree = "<group>"; };
 		3320A3E4ED074D8703CCA17B /* CumulusApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CumulusApp.swift; sourceTree = "<group>"; };
+		3F7EEE6360B88531682B3998 /* SnapEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapEngine.swift; sourceTree = "<group>"; };
+		404E4FDF4020D106EE722F40 /* CumulusTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CumulusTheme.swift; sourceTree = "<group>"; };
 		4E91F3CAC9C04DEF679BD218 /* embed.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = embed.html; sourceTree = "<group>"; };
 		520690D4E3C9CFDDAAE31C6B /* InputPoller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputPoller.swift; sourceTree = "<group>"; };
 		604C0C8451D6B8DCF1E43014 /* YouTubeURLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeURLParser.swift; sourceTree = "<group>"; };
+		6FEEB43273FDA3A27B53F75C /* cumulus-mark.svg */ = {isa = PBXFileReference; path = "cumulus-mark.svg"; sourceTree = "<group>"; };
 		733CCDBEA9393E4C9CF138F5 /* Cumulus.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Cumulus.entitlements; sourceTree = "<group>"; };
 		7536AB819A71D2DF9F9B79BA /* Cumulus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cumulus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		81B6343CF524E197F6318B96 /* OverlayChromeLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayChromeLayout.swift; sourceTree = "<group>"; };
 		820A466AB2EA3934E7CF9204 /* StatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
+		880F0673F2DE98941E87B1E7 /* SnapOverlayController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapOverlayController.swift; sourceTree = "<group>"; };
+		8AFD16A73F34D1BDBAEA4BB1 /* YouTubePlayerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubePlayerController.swift; sourceTree = "<group>"; };
 		9045A1E00FD99DACFE9C80CB /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		95F7542F5D426BCF99CD5281 /* YouTubeWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeWebView.swift; sourceTree = "<group>"; };
 		9F143F3446458EB3592DCF27 /* DebugLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugLog.swift; sourceTree = "<group>"; };
 		A15792B81C622E53CA2E8368 /* OverlayPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayPanel.swift; sourceTree = "<group>"; };
 		A3AD6F4CE6C5BBDE5B8C942B /* LoopbackWebServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopbackWebServer.swift; sourceTree = "<group>"; };
+		A794414F2E0CEDC83B4DAD12 /* OverlayContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayContentView.swift; sourceTree = "<group>"; };
+		D920A968629FD690E2C04784 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DECB52F360A8C2B2AD4DF29D /* OverlayController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayController.swift; sourceTree = "<group>"; };
-		F3E3E2E717F9495738E0C074 /* ControlPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlPanelView.swift; sourceTree = "<group>"; };
-		FBAC091B4A3077F5C8187D35 /* OverlayRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayRootView.swift; sourceTree = "<group>"; };
+		FA32EDB8FBD95EFBAB8D5481 /* OverlayChromeLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayChromeLayer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -60,6 +74,7 @@
 		200BC346EC40E7E7DA3BC1E5 /* Cumulus */ = {
 			isa = PBXGroup;
 			children = (
+				D920A968629FD690E2C04784 /* Assets.xcassets */,
 				733CCDBEA9393E4C9CF138F5 /* Cumulus.entitlements */,
 				3320A3E4ED074D8703CCA17B /* CumulusApp.swift */,
 				644A883C599E0CAF077808FF /* Models */,
@@ -86,10 +101,16 @@
 				25958DAD29B4A2C7FAD3CABC /* HotKeyManager.swift */,
 				520690D4E3C9CFDDAAE31C6B /* InputPoller.swift */,
 				A3AD6F4CE6C5BBDE5B8C942B /* LoopbackWebServer.swift */,
+				FA32EDB8FBD95EFBAB8D5481 /* OverlayChromeLayer.swift */,
 				81B6343CF524E197F6318B96 /* OverlayChromeLayout.swift */,
+				A794414F2E0CEDC83B4DAD12 /* OverlayContentView.swift */,
 				DECB52F360A8C2B2AD4DF29D /* OverlayController.swift */,
 				A15792B81C622E53CA2E8368 /* OverlayPanel.swift */,
+				0CE0F6EF9BDE69FF64E7E5B3 /* SettingsWindowController.swift */,
+				3F7EEE6360B88531682B3998 /* SnapEngine.swift */,
+				880F0673F2DE98941E87B1E7 /* SnapOverlayController.swift */,
 				820A466AB2EA3934E7CF9204 /* StatusBarController.swift */,
+				8AFD16A73F34D1BDBAEA4BB1 /* YouTubePlayerController.swift */,
 			);
 			path = Overlay;
 			sourceTree = "<group>";
@@ -97,13 +118,19 @@
 		D9474364AA7F9608B6172ABF /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				F3E3E2E717F9495738E0C074 /* ControlPanelView.swift */,
-				23A60952924A1A0E7749B906 /* OverlayInteractiveChrome.swift */,
-				FBAC091B4A3077F5C8187D35 /* OverlayRootView.swift */,
+				171F29C071ABC28218919211 /* ControlPopoverView.swift */,
 				9045A1E00FD99DACFE9C80CB /* SettingsView.swift */,
-				95F7542F5D426BCF99CD5281 /* YouTubeWebView.swift */,
+				DBC780DAE672FCA8C2796A5C /* Theme */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		DBC780DAE672FCA8C2796A5C /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				404E4FDF4020D106EE722F40 /* CumulusTheme.swift */,
+			);
+			path = Theme;
 			sourceTree = "<group>";
 		};
 		E52BE6E9AB6236FB06FE9D4E /* Products */ = {
@@ -117,6 +144,8 @@
 		E639C12C89134E775E3EDC0E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				21C75A5278BC24BEEBFE155C /* cumulus-app-icon.svg */,
+				6FEEB43273FDA3A27B53F75C /* cumulus-mark.svg */,
 				4E91F3CAC9C04DEF679BD218 /* embed.html */,
 			);
 			path = Resources;
@@ -178,6 +207,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0E4347908B2516323EAE5EBD /* Assets.xcassets in Resources */,
+				2E182F1FE904701331A80134 /* cumulus-app-icon.svg in Resources */,
+				2F9C3258A1281E56A2175EAE /* cumulus-mark.svg in Resources */,
 				FD4E9ACDFBE7B390E2F5492B /* embed.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -189,22 +221,26 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				491D17BD5B23E5EE5BCDCA49 /* ControlPanelView.swift in Sources */,
+				40DE4DC2AFECD9EF73BFB8EB /* ControlPopoverView.swift in Sources */,
 				EE0A4C07F7AE357B56DF04C4 /* CumulusApp.swift in Sources */,
+				6578B726B0343B7B6C27FC05 /* CumulusTheme.swift in Sources */,
 				ED3BF8EE69ACF403A631B7B0 /* DebugLog.swift in Sources */,
 				D3CB407B47B74B88255337CC /* HotKeyManager.swift in Sources */,
 				71404BCE4BB367AE30AC506E /* InputPoller.swift in Sources */,
 				58C0495E59D6765F875E02BF /* LoopbackWebServer.swift in Sources */,
+				E84B63BE13663D78B1A780AD /* OverlayChromeLayer.swift in Sources */,
 				4EC83CC324279E50DB44911D /* OverlayChromeLayout.swift in Sources */,
+				DCFFF0A6155D48648A3B1E38 /* OverlayContentView.swift in Sources */,
 				C742E128F94FC7BDC3393F60 /* OverlayController.swift in Sources */,
-				5D426C5611FA3F8791649369 /* OverlayInteractiveChrome.swift in Sources */,
 				01642377D6B32D94E907B53E /* OverlayPanel.swift in Sources */,
-				80E7320BF9DEBEF1DC7E4CB2 /* OverlayRootView.swift in Sources */,
 				4F4A0C7775B489EF80E49ACB /* OverlaySettings.swift in Sources */,
 				7BD4502C1E403793D178C5F5 /* SettingsView.swift in Sources */,
+				9C1D930FAFB39E1C75E3600A /* SettingsWindowController.swift in Sources */,
+				E544E79EAD028082E0E0668C /* SnapEngine.swift in Sources */,
+				73706F663256211429BDA30A /* SnapOverlayController.swift in Sources */,
 				B764F74A85B4A693C7CCCDF0 /* StatusBarController.swift in Sources */,
+				B12593FC18CDD18CB81B2850 /* YouTubePlayerController.swift in Sources */,
 				CDB96EA7A6E571985EF8B045 /* YouTubeURLParser.swift in Sources */,
-				7F838C0BFA1DCAD2BBF644A4 /* YouTubeWebView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

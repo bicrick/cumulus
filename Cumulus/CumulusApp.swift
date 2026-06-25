@@ -11,7 +11,6 @@ final class AppModel: ObservableObject {
     let controller: OverlayController
     let hotKeyManager: HotKeyManager
     private var statusBar: StatusBarController?
-    private let controlPanel = ControlPanelController()
     private var cancellables = Set<AnyCancellable>()
 
     init() {
@@ -24,7 +23,6 @@ final class AppModel: ObservableObject {
 
         controller.onVisibilityChanged = { [weak self] in
             self?.objectWillChange.send()
-            self?.statusBar?.refreshMenu()
         }
 
         controller.objectWillChange.sink { [weak self] _ in
@@ -42,7 +40,6 @@ final class AppModel: ObservableObject {
     func setupUI() {
         NSApp.setActivationPolicy(.regular)
         statusBar = StatusBarController(appModel: self)
-        controlPanel.show(appModel: self)
         hotKeyManager.register()
 
         Task { @MainActor in
@@ -55,9 +52,13 @@ final class AppModel: ObservableObject {
         }
     }
 
-    func showControlPanel() {
-        controlPanel.show(appModel: self)
+    func showControlPopover() {
+        statusBar?.showPopover()
         NSApp.activate(ignoringOtherApps: true)
+    }
+
+    func openSettings() {
+        statusBar?.openSettings()
     }
 }
 
@@ -67,16 +68,26 @@ struct CumulusApp: App {
     @StateObject private var appModel = AppModel()
 
     var body: some Scene {
-        Settings {
-            SettingsView(settings: appModel.settings, controller: appModel.controller)
+        WindowGroup {
+            EmptyView()
+                .frame(width: 0, height: 0)
+                .hidden()
         }
+        .windowResizability(.contentSize)
+        .defaultSize(width: 0, height: 0)
     }
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        for window in NSApp.windows where window.canBecomeMain {
+            window.orderOut(nil)
+        }
+    }
+
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         Task { @MainActor in
-            AppModelHolder.model?.showControlPanel()
+            AppModelHolder.model?.showControlPopover()
         }
         return true
     }
