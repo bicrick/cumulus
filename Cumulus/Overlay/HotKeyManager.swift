@@ -5,10 +5,16 @@ import Carbon.HIToolbox
 final class HotKeyManager {
     private var hotKeyRef: EventHotKeyRef?
     private var eventHandler: EventHandlerRef?
-    private let callback: () -> Void
+    private let onSingleTap: () -> Void
+    private let onDoubleTap: () -> Void
 
-    init(callback: @escaping () -> Void) {
-        self.callback = callback
+    private var lastPressTime: Date?
+    private var pendingSingleTapTask: Task<Void, Never>?
+    private let doubleTapWindow: TimeInterval = 0.3
+
+    init(onSingleTap: @escaping () -> Void, onDoubleTap: @escaping () -> Void) {
+        self.onSingleTap = onSingleTap
+        self.onDoubleTap = onDoubleTap
     }
 
     func register() {
@@ -20,7 +26,7 @@ final class HotKeyManager {
             guard let userData else { return OSStatus(eventNotHandledErr) }
             let manager = Unmanaged<HotKeyManager>.fromOpaque(userData).takeUnretainedValue()
             Task { @MainActor in
-                manager.callback()
+                manager.handleHotKeyPress()
             }
             return noErr
         }
@@ -40,6 +46,10 @@ final class HotKeyManager {
     }
 
     func unregister() {
+        pendingSingleTapTask?.cancel()
+        pendingSingleTapTask = nil
+        lastPressTime = nil
+
         if let hotKeyRef {
             UnregisterEventHotKey(hotKeyRef)
             self.hotKeyRef = nil
@@ -47,6 +57,27 @@ final class HotKeyManager {
         if let eventHandler {
             RemoveEventHandler(eventHandler)
             self.eventHandler = nil
+        }
+    }
+
+    private func handleHotKeyPress() {
+        let now = Date()
+
+        if let last = lastPressTime, now.timeIntervalSince(last) < doubleTapWindow {
+            pendingSingleTapTask?.cancel()
+            pendingSingleTapTask = nil
+            lastPressTime = nil
+            onDoubleTap()
+            return
+        }
+
+        lastPressTime = now
+        pendingSingleTapTask?.cancel()
+        pendingSingleTapTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: UInt64(doubleTapWindow * 1_000_000_000))
+            guard !Task.isCancelled, lastPressTime != nil else { return }
+            lastPressTime = nil
+            onSingleTap()
         }
     }
 }

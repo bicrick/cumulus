@@ -15,11 +15,16 @@ final class AppModel: ObservableObject {
 
     init() {
         controller = OverlayController(settings: settings)
-        hotKeyManager = HotKeyManager { [weak controller] in
-            Task { @MainActor in
+        hotKeyManager = HotKeyManager(
+            onSingleTap: { [weak controller] in
                 controller?.toggleOverlay()
+            },
+            onDoubleTap: {
+                Task { @MainActor in
+                    AppModelHolder.model?.openQuickInput()
+                }
             }
-        }
+        )
 
         controller.onVisibilityChanged = { [weak self] in
             self?.objectWillChange.send()
@@ -59,6 +64,23 @@ final class AppModel: ObservableObject {
 
     func openSettings() {
         statusBar?.openSettings()
+    }
+
+    func openQuickInput() {
+        NSApp.activate(ignoringOtherApps: true)
+
+        if QuickInputWindowController.shared.isVisible {
+            QuickInputWindowController.shared.close()
+            return
+        }
+
+        if let clipboard = NSPasteboard.general.string(forType: .string),
+           YouTubeURLParser.videoID(from: clipboard) != nil {
+            controller.loadVideo(from: clipboard)
+            return
+        }
+
+        QuickInputWindowController.shared.open(controller: controller)
     }
 }
 

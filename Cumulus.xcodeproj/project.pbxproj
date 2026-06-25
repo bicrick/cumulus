@@ -26,6 +26,7 @@
 		CDB96EA7A6E571985EF8B045 /* YouTubeURLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 604C0C8451D6B8DCF1E43014 /* YouTubeURLParser.swift */; };
 		D3CB407B47B74B88255337CC /* HotKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25958DAD29B4A2C7FAD3CABC /* HotKeyManager.swift */; };
 		DCFFF0A6155D48648A3B1E38 /* OverlayContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A794414F2E0CEDC83B4DAD12 /* OverlayContentView.swift */; };
+		E019B3E0A7CB87CE7915CBFC /* QuickInputWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A354A8B287DE8DB6D5D6BA2A /* QuickInputWindow.swift */; };
 		E544E79EAD028082E0E0668C /* SnapEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F7EEE6360B88531682B3998 /* SnapEngine.swift */; };
 		E84B63BE13663D78B1A780AD /* OverlayChromeLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA32EDB8FBD95EFBAB8D5481 /* OverlayChromeLayer.swift */; };
 		ED3BF8EE69ACF403A631B7B0 /* DebugLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F143F3446458EB3592DCF27 /* DebugLog.swift */; };
@@ -55,6 +56,7 @@
 		9045A1E00FD99DACFE9C80CB /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		9F143F3446458EB3592DCF27 /* DebugLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugLog.swift; sourceTree = "<group>"; };
 		A15792B81C622E53CA2E8368 /* OverlayPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayPanel.swift; sourceTree = "<group>"; };
+		A354A8B287DE8DB6D5D6BA2A /* QuickInputWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickInputWindow.swift; sourceTree = "<group>"; };
 		A3AD6F4CE6C5BBDE5B8C942B /* LoopbackWebServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopbackWebServer.swift; sourceTree = "<group>"; };
 		A794414F2E0CEDC83B4DAD12 /* OverlayContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayContentView.swift; sourceTree = "<group>"; };
 		D920A968629FD690E2C04784 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -119,6 +121,7 @@
 			isa = PBXGroup;
 			children = (
 				171F29C071ABC28218919211 /* ControlPopoverView.swift */,
+				A354A8B287DE8DB6D5D6BA2A /* QuickInputWindow.swift */,
 				9045A1E00FD99DACFE9C80CB /* SettingsView.swift */,
 				DBC780DAE672FCA8C2796A5C /* Theme */,
 			);
@@ -234,6 +237,7 @@
 				C742E128F94FC7BDC3393F60 /* OverlayController.swift in Sources */,
 				01642377D6B32D94E907B53E /* OverlayPanel.swift in Sources */,
 				4F4A0C7775B489EF80E49ACB /* OverlaySettings.swift in Sources */,
+				E019B3E0A7CB87CE7915CBFC /* QuickInputWindow.swift in Sources */,
 				7BD4502C1E403793D178C5F5 /* SettingsView.swift in Sources */,
 				9C1D930FAFB39E1C75E3600A /* SettingsWindowController.swift in Sources */,
 				E544E79EAD028082E0E0668C /* SnapEngine.swift in Sources */,

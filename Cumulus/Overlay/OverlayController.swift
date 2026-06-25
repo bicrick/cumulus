@@ -167,10 +167,9 @@ final class OverlayController: ObservableObject {
         currentVideoID = videoID
         settings.lastVideoURL = urlString
 
-        let size = ScreenGeometry.sizeMatchingAspect(width: max(settings.overlayFrame.width, ScreenGeometry.minVideoWidth))
-        settings.overlayFrame = OverlayFrame(from: ScreenGeometry.centeredFrame(size: size))
-
         if panel == nil {
+            let size = ScreenGeometry.sizeMatchingAspect(width: max(settings.overlayFrame.width, ScreenGeometry.minVideoWidth))
+            settings.overlayFrame = OverlayFrame(from: ScreenGeometry.centeredFrame(size: size))
             createPanel()
         }
 
